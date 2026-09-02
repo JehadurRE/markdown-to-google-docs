@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="media/icon.png" width="128" height="128" alt="Markdown to Google Docs Logo" style="border-radius: 24px;" />
+</p>
+
 # Markdown to Google Docs (`md2gdocs`)
 
 **Convert any Markdown file into a beautiful, modern, and professional Google Doc with 1-click cloud sync, rich clipboard copy, live preview, and executive themes.**
