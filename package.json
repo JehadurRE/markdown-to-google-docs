@@ -1,0 +1,257 @@
+{
+  "name": "markdown-to-google-docs",
+  "displayName": "Markdown to Google Docs - Modern & Professional",
+  "description": "Convert any Markdown file to a beautifully styled, professional Google Doc with 1-click cloud sync, rich clipboard copy, live preview, and modern themes.",
+  "version": "1.0.0",
+  "publisher": "jehadurre",
+  "author": {
+    "name": "Jehadur Rahman (JehadurRE)",
+    "email": "emran.jehadur+ch@gmail.com",
+    "url": "https://github.com/JehadurRE"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jehadurre/markdown-to-google-docs"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters",
+    "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "google docs",
+    "converter",
+    "export",
+    "gdocs",
+    "documentation"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "md2gdocs.copyForGoogleDocs",
+        "title": "Copy for Google Docs (Rich Formatted)",
+        "category": "Markdown to Google Docs",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "md2gdocs.convertToGoogleDocs",
+        "title": "Upload to Google Docs (Cloud Sync)",
+        "category": "Markdown to Google Docs",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "md2gdocs.showPreview",
+        "title": "Show Google Docs Style Preview",
+        "category": "Markdown to Google Docs",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "md2gdocs.exportHtml",
+        "title": "Export as Google Docs HTML",
+        "category": "Markdown to Google Docs",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "md2gdocs.exportDocx",
+        "title": "Export as Google Docs-ready DOCX",
+        "category": "Markdown to Google Docs",
+        "icon": "$(file-binary)"
+      },
+      {
+        "command": "md2gdocs.selectTheme",
+        "title": "Select Document Theme",
+        "category": "Markdown to Google Docs",
+        "icon": "$(paintcan)"
+      },
+      {
+        "command": "md2gdocs.authenticateGoogle",
+        "title": "Google Account: Sign In / Configure",
+        "category": "Markdown to Google Docs",
+        "icon": "$(account)"
+      },
+      {
+        "command": "md2gdocs.logoutGoogle",
+        "title": "Google Account: Sign Out",
+        "category": "Markdown to Google Docs",
+        "icon": "$(sign-out)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "md2gdocs.showPreview",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        },
+        {
+          "command": "md2gdocs.copyForGoogleDocs",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        },
+        {
+          "command": "md2gdocs.convertToGoogleDocs",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "md2gdocs.copyForGoogleDocs",
+          "when": "editorLangId == markdown",
+          "group": "1_md2gdocs"
+        },
+        {
+          "command": "md2gdocs.convertToGoogleDocs",
+          "when": "editorLangId == markdown",
+          "group": "1_md2gdocs"
+        },
+        {
+          "command": "md2gdocs.showPreview",
+          "when": "editorLangId == markdown",
+          "group": "1_md2gdocs"
+        },
+        {
+          "submenu": "md2gdocs.exportSubmenu",
+          "when": "editorLangId == markdown",
+          "group": "2_md2gdocs"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "md2gdocs.copyForGoogleDocs",
+          "when": "resourceExtname == .md",
+          "group": "md2gdocs"
+        },
+        {
+          "command": "md2gdocs.convertToGoogleDocs",
+          "when": "resourceExtname == .md",
+          "group": "md2gdocs"
+        },
+        {
+          "command": "md2gdocs.exportHtml",
+          "when": "resourceExtname == .md",
+          "group": "md2gdocs"
+        }
+      ],
+      "submenus": [
+        {
+          "id": "md2gdocs.exportSubmenu",
+          "label": "Export Google Docs Formats..."
+        }
+      ],
+      "md2gdocs.exportSubmenu": [
+        {
+          "command": "md2gdocs.exportHtml",
+          "group": "1_export"
+        },
+        {
+          "command": "md2gdocs.exportDocx",
+          "group": "1_export"
+        },
+        {
+          "command": "md2gdocs.selectTheme",
+          "group": "2_theme"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Markdown to Google Docs",
+      "properties": {
+        "md2gdocs.defaultTheme": {
+          "type": "string",
+          "default": "modern-corporate",
+          "enum": [
+            "modern-corporate",
+            "executive-navy",
+            "emerald-mint",
+            "crimson-elegant",
+            "minimalist-mono",
+            "tech-violet"
+          ],
+          "enumDescriptions": [
+            "Modern Corporate (Slate & Indigo - Clean tech aesthetic)",
+            "Executive Navy (Deep Navy & Gold - Corporate reports & proposals)",
+            "Emerald Mint (Forest Green & Mint - Fresh, sustainable, modern)",
+            "Crimson Elegant (Burgundy & Rose - Editorial, academic, refined)",
+            "Minimalist Mono (High contrast grayscale - Elegant timeless design)",
+            "Tech Violet (Vibrant Indigo/Violet - Developer docs & tech blogs)"
+          ],
+          "description": "Default professional theme used for Google Docs styling."
+        },
+        "md2gdocs.fontFamily": {
+          "type": "string",
+          "default": "Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
+          "description": "Font family for body text (Google Docs supports Inter, Roboto, Arial, Georgia, etc.)."
+        },
+        "md2gdocs.includeTableOfContents": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically generate a styled Table of Contents for documents with multiple headings."
+        },
+        "md2gdocs.tableZebraStriping": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable zebra striping (alternating row backgrounds) on tables."
+        },
+        "md2gdocs.codeBlockTheme": {
+          "type": "string",
+          "default": "github-light",
+          "enum": [
+            "github-light",
+            "github-dark",
+            "solarized-light",
+            "monokai-subtle"
+          ],
+          "description": "Color theme for code block syntax highlighting."
+        },
+        "md2gdocs.googleClientId": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom Google Cloud OAuth 2.0 Client ID for Drive upload."
+        },
+        "md2gdocs.googleClientSecret": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom Google Cloud OAuth 2.0 Client Secret."
+        },
+        "md2gdocs.googleDriveFolderId": {
+          "type": "string",
+          "default": "",
+          "description": "Google Drive target folder ID. Leave blank to save to root Drive folder."
+        },
+        "md2gdocs.openAfterUpload": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the created Google Doc in your default browser after upload."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "node ./out/test/runTests.js"
+  },
+  "devDependencies": {
+    "@types/highlight.js": "^10.1.0",
+    "@types/markdown-it": "^13.0.7",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "docx": "^8.5.0",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.9.0",
+    "markdown-it": "^14.0.0"
+  }
+}
