@@ -103,12 +103,45 @@ $dataObject.SetData([System.Windows.Forms.DataFormats]::Html, $htmlData)
 
   private static copyLinuxHtml(html: string, plainText: string): Promise<boolean> {
     return new Promise((resolve) => {
-      const child = spawn('xclip', ['-selection', 'clipboard', '-t', 'text/html']);
+      // Auto-detect Wayland vs X11
+      const isWayland = Boolean(process.env['WAYLAND_DISPLAY']);
+      const primaryCmd = isWayland ? 'wl-copy' : 'xclip';
+      const primaryArgs = isWayland ? ['-t', 'text/html'] : ['-selection', 'clipboard', '-t', 'text/html'];
+
+      const child = spawn(primaryCmd, primaryArgs);
       child.stdin.write(html);
       child.stdin.end();
 
-      child.on('close', (code) => resolve(code === 0));
-      child.on('error', () => resolve(false));
+      child.on('close', (code) => {
+        if (code === 0) return resolve(true);
+        // Fallback to xclip if wl-copy wasn't present or vice-versa
+        const fallbackCmd = isWayland ? 'xclip' : 'wl-copy';
+        const fallbackArgs = isWayland ? ['-selection', 'clipboard', '-t', 'text/html'] : ['-t', 'text/html'];
+        try {
+          const fb = spawn(fallbackCmd, fallbackArgs);
+          fb.stdin.write(html);
+          fb.stdin.end();
+          fb.on('close', (fbCode) => resolve(fbCode === 0));
+          fb.on('error', () => resolve(false));
+        } catch (_) {
+          resolve(false);
+        }
+      });
+
+      child.on('error', () => {
+        // Try fallback tool
+        const fallbackCmd = isWayland ? 'xclip' : 'wl-copy';
+        const fallbackArgs = isWayland ? ['-selection', 'clipboard', '-t', 'text/html'] : ['-t', 'text/html'];
+        try {
+          const fb = spawn(fallbackCmd, fallbackArgs);
+          fb.stdin.write(html);
+          fb.stdin.end();
+          fb.on('close', (fbCode) => resolve(fbCode === 0));
+          fb.on('error', () => resolve(false));
+        } catch (_) {
+          resolve(false);
+        }
+      });
     });
   }
 

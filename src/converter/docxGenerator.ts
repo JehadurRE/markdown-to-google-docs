@@ -251,10 +251,20 @@ export class DocxGenerator {
           })
         );
       } else if (line.trim().startsWith('> [!')) {
-        // Callout box
-        const calloutMatch = line.trim().match(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:\s*(.*))?$/i);
-        const type = calloutMatch ? calloutMatch[1].toLowerCase() : 'note';
-        const title = calloutMatch && calloutMatch[2] ? calloutMatch[2].trim() : type.toUpperCase();
+        // Callout box (12 extended types)
+        const calloutMatch = line.trim().match(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DONE|DANGER|FAIL|ERROR|QUESTION|FAQ|HELP|QUOTE|CITE|TODO|EXAMPLE)\](?:\s*(.*))?$/i);
+        let type = calloutMatch ? calloutMatch[1].toLowerCase() : 'note';
+        if (type === 'done') type = 'success';
+        if (type === 'fail' || type === 'error') type = 'danger';
+        if (type === 'faq' || type === 'help') type = 'question';
+        if (type === 'cite') type = 'quote';
+
+        const defaultTitles: Record<string, string> = {
+          note: 'NOTE', tip: 'TIP', important: 'IMPORTANT', warning: 'WARNING', caution: 'CAUTION',
+          info: 'INFORMATION', success: 'SUCCESS', danger: 'DANGER', question: 'QUESTION',
+          quote: 'QUOTE', todo: 'TO-DO', example: 'EXAMPLE'
+        };
+        const title = calloutMatch && calloutMatch[2] && calloutMatch[2].trim() ? calloutMatch[2].trim() : (defaultTitles[type] || type.toUpperCase());
         
         // Read next lines of callout
         const calloutBody: string[] = [];
@@ -280,8 +290,35 @@ export class DocxGenerator {
             spacing: { before: 120, after: 120 }
           })
         );
+      } else if (/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/i.test(line)) {
+        // Skip manual TOC tag in DOCX (or ignore)
+        continue;
+      } else if (line.trim().startsWith('- [ ] ')) {
+        // Unchecked task list
+        const text = line.trim().replace(/^- \[ \] /, '');
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: '☐  ', bold: true, size: 22 }),
+              ...this.parseFormattedRuns(text)
+            ],
+            spacing: { after: 100 }
+          })
+        );
+      } else if (line.trim().startsWith('- [x] ') || line.trim().startsWith('- [X] ')) {
+        // Checked task list with strikethrough
+        const text = line.trim().replace(/^- \[[xX]\] /, '');
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: '☑  ', bold: true, size: 22 }),
+              new TextRun({ text: text, strike: true, color: this.theme.textMuted.replace('#', '') })
+            ],
+            spacing: { after: 100 }
+          })
+        );
       } else if (line.trim().length > 0) {
-        // Regular paragraph with inline formatting
+        // Regular paragraph with rich inline formatting
         children.push(this.createFormattedParagraph(line));
       }
     }
@@ -292,12 +329,22 @@ export class DocxGenerator {
   }
 
   private createFormattedParagraph(text: string): Paragraph {
+    const runs = this.parseFormattedRuns(text);
+    return new Paragraph({
+      children: runs,
+      spacing: { after: 140 }
+    });
+  }
+
+  private parseFormattedRuns(text: string): TextRun[] {
     const runs: TextRun[] = [];
-    // Basic inline bold and italic parsing
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    // Tokenize: bold, italic, code, highlight (==text==), sub (~text~), sup (^text^), strike (~~text~~), insert (++text++), kbd (<kbd>text</kbd>), math ($text$)
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|==.*?==|~~.*?~~|\+\+.*?\+\+|\~.*?\~|\^.*?\^|<kbd>.*?<\/kbd>|\$[^\$\n]+?\$)/g;
+    const parts = text.split(regex);
 
     for (const part of parts) {
       if (!part) continue;
+
       if (part.startsWith('**') && part.endsWith('**')) {
         runs.push(new TextRun({ text: part.slice(2, -2), bold: true }));
       } else if (part.startsWith('*') && part.endsWith('*')) {
@@ -311,15 +358,33 @@ export class DocxGenerator {
             color: this.theme.secondary.replace('#', '')
           })
         );
+      } else if (part.startsWith('==') && part.endsWith('==')) {
+        // Highlighted text
+        runs.push(new TextRun({ text: part.slice(2, -2), highlight: 'yellow' }));
+      } else if (part.startsWith('~~') && part.endsWith('~~')) {
+        // Strikethrough
+        runs.push(new TextRun({ text: part.slice(2, -2), strike: true }));
+      } else if (part.startsWith('++') && part.endsWith('++')) {
+        // Inserted underline text
+        runs.push(new TextRun({ text: part.slice(2, -2), underline: {} }));
+      } else if (part.startsWith('~') && part.endsWith('~')) {
+        // Subscript
+        runs.push(new TextRun({ text: part.slice(1, -1), subScript: true }));
+      } else if (part.startsWith('^') && part.endsWith('^')) {
+        // Superscript
+        runs.push(new TextRun({ text: part.slice(1, -1), superScript: true }));
+      } else if (part.startsWith('<kbd>') && part.endsWith('</kbd>')) {
+        // Keyboard key
+        runs.push(new TextRun({ text: part.slice(5, -6), font: 'Consolas', bold: true }));
+      } else if (part.startsWith('$') && part.endsWith('$')) {
+        // Inline math
+        runs.push(new TextRun({ text: part.slice(1, -1), italics: true, font: 'Cambria Math' }));
       } else {
         runs.push(new TextRun({ text: part }));
       }
     }
 
-    return new Paragraph({
-      children: runs,
-      spacing: { after: 140 }
-    });
+    return runs;
   }
 
   private addCodeBlock(code: string, children: (Paragraph | Table)[]): void {

@@ -442,6 +442,39 @@ Testing PDF generation with **bold** text, \`code\`, and tables.
     }
   });
 
+  // Test 20: DOCX Generator rich elements (task lists, math, extended callouts)
+  await test('DocxGenerator builds document with extended callouts, task lists, and formatting runs', async () => {
+    const md = `---
+title: "Docx Rich Test"
+---
+# Heading
+- [ ] Incomplete item
+- [x] Completed item
+
+> [!SUCCESS] Done
+> Task completed.
+
+> [!DANGER]
+> Alert!
+
+Text with ==highlight==, ~sub~, ^sup^, and $E=mc^2$.
+`;
+    const docxGen = new DocxGenerator({ theme: 'modern-corporate' });
+    const buffer = await docxGen.generateDocx(md);
+
+    assert.ok(buffer instanceof Buffer, 'Docx output is not a Buffer');
+    assert.ok(buffer.length > 2000, 'Docx buffer too small');
+    assert.strictEqual(buffer[0], 0x50);
+    assert.strictEqual(buffer[1], 0x4B);
+  });
+
+  // Test 21: Cross-platform Chromium browser finder
+  await test('PdfGenerator.findChromiumBrowser finds valid browser executable', () => {
+    const browser = PdfGenerator.findChromiumBrowser();
+    assert.ok(browser, 'No Chromium browser found on this test environment');
+    assert.ok(fs.existsSync(browser), `Found browser path does not exist: ${browser}`);
+  });
+
   console.log(`\n========================================`);
   console.log(`Results: ${passed} passed, ${failed} failed`);
   console.log(`========================================\n`);

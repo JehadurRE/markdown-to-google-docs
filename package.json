@@ -182,6 +182,26 @@
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "md2gdocs.copyForGoogleDocs",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "md2gdocs.showPreview",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "md2gdocs.exportPdf",
+        "key": "ctrl+alt+d",
+        "mac": "cmd+alt+d",
+        "when": "editorTextFocus && editorLangId == markdown"
+      }
+    ],
     "configuration": {
       "title": "Markdown to Google Docs",
       "properties": {
