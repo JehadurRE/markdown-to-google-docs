@@ -37,20 +37,26 @@ export class ClipboardHelper {
       // Build CF_HTML Windows standard clipboard format
       const cfHtml = this.buildCfHtml(html);
 
-      // Create a temporary script file to prevent shell escaping issues
+      // Create temporary files to prevent shell escaping issues
       const tempDir = os.tmpdir();
-      const tempHtmlFile = path.join(tempDir, `md2gdocs_${Date.now()}.html`);
+      const tempHtmlFile = path.join(tempDir, `md2gdocs_${Date.now()}_html.txt`);
+      const tempTextFile = path.join(tempDir, `md2gdocs_${Date.now()}_text.txt`);
       const tempPsFile = path.join(tempDir, `md2gdocs_${Date.now()}.ps1`);
 
       try {
         fs.writeFileSync(tempHtmlFile, cfHtml, 'utf8');
+        fs.writeFileSync(tempTextFile, plainText, 'utf8');
 
-        // PowerShell script using Windows Forms or PresentationCore
+        // PowerShell script using Windows Forms DataObject with both HTML and UnicodeText
         const psScript = `
 Add-Type -AssemblyName System.Windows.Forms
 $htmlData = [System.IO.File]::ReadAllText("${tempHtmlFile.replace(/\\/g, '\\\\')}", [System.Text.Encoding]::UTF8)
+$textData = [System.IO.File]::ReadAllText("${tempTextFile.replace(/\\/g, '\\\\')}", [System.Text.Encoding]::UTF8)
+
 $dataObject = New-Object System.Windows.Forms.DataObject
 $dataObject.SetData([System.Windows.Forms.DataFormats]::Html, $htmlData)
+$dataObject.SetData([System.Windows.Forms.DataFormats]::UnicodeText, $textData)
+
 [System.Windows.Forms.Clipboard]::SetDataObject($dataObject, $true)
 `;
 
@@ -69,6 +75,7 @@ $dataObject.SetData([System.Windows.Forms.DataFormats]::Html, $htmlData)
           // Cleanup temp files
           try {
             if (fs.existsSync(tempHtmlFile)) fs.unlinkSync(tempHtmlFile);
+            if (fs.existsSync(tempTextFile)) fs.unlinkSync(tempTextFile);
             if (fs.existsSync(tempPsFile)) fs.unlinkSync(tempPsFile);
           } catch (_) {}
 
@@ -146,33 +153,37 @@ $dataObject.SetData([System.Windows.Forms.DataFormats]::Html, $htmlData)
   }
 
   /**
-   * Windows standard CF_HTML format header
+   * Windows standard CF_HTML format header with byte-perfect offsets
    */
   private static buildCfHtml(htmlContent: string): string {
     const headerPrefix = 
       'Version:0.9\r\n' +
-      'StartHTML:<<<<<<<<1\r\n' +
-      'EndHTML:<<<<<<<<2\r\n' +
-      'StartFragment:<<<<<<<<3\r\n' +
-      'EndFragment:<<<<<<<<4\r\n';
+      'StartHTML:0000000001\r\n' +
+      'EndHTML:0000000002\r\n' +
+      'StartFragment:0000000003\r\n' +
+      'EndFragment:0000000004\r\n';
 
     const startHtml = '<html>\r\n<body>\r\n<!--StartFragment-->';
     const endHtml = '<!--EndFragment-->\r\n</body>\r\n</html>';
 
-    const fullDoc = headerPrefix + startHtml + htmlContent + endHtml;
-    const utf8Bytes = Buffer.from(fullDoc, 'utf8');
+    const headerLen = Buffer.from(headerPrefix, 'utf8').length;
+    const startHtmlLen = Buffer.from(startHtml, 'utf8').length;
+    const contentLen = Buffer.from(htmlContent, 'utf8').length;
+    const endHtmlLen = Buffer.from(endHtml, 'utf8').length;
 
-    const startHtmlPos = Buffer.from(headerPrefix, 'utf8').length;
-    const startFragPos = startHtmlPos + Buffer.from(startHtml, 'utf8').length;
-    const endFragPos = startFragPos + Buffer.from(htmlContent, 'utf8').length;
-    const endHtmlPos = endFragPos + Buffer.from(endHtml, 'utf8').length;
+    const startHtmlPos = headerLen;
+    const startFragPos = startHtmlPos + startHtmlLen;
+    const endFragPos = startFragPos + contentLen;
+    const endHtmlPos = endFragPos + endHtmlLen;
 
     const pad = (n: number) => n.toString().padStart(10, '0');
 
+    const fullDoc = headerPrefix + startHtml + htmlContent + endHtml;
+
     return fullDoc
-      .replace('<<<<<<<<1', pad(startHtmlPos))
-      .replace('<<<<<<<<2', pad(endHtmlPos))
-      .replace('<<<<<<<<3', pad(startFragPos))
-      .replace('<<<<<<<<4', pad(endFragPos));
+      .replace('0000000001', pad(startHtmlPos))
+      .replace('0000000002', pad(endHtmlPos))
+      .replace('0000000003', pad(startFragPos))
+      .replace('0000000004', pad(endFragPos));
   }
 }

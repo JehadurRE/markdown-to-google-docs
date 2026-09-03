@@ -3,6 +3,7 @@ import {
   Packer,
   Paragraph,
   TextRun,
+  ExternalHyperlink,
   Table,
   TableRow,
   TableCell,
@@ -183,15 +184,17 @@ export class DocxGenerator {
     // Title
     children.push(
       new Paragraph({
+        heading: HeadingLevel.TITLE,
         children: [
           new TextRun({
             text: titleText,
             bold: true,
             size: 52, // 26pt
-            color: primaryHex
+            color: primaryHex,
+            font: this.theme.headingFontFamily.split(',')[0].replace(/['"]/g, '').trim()
           })
         ],
-        spacing: { after: 140 }
+        spacing: { before: 0, after: 120 }
       })
     );
 
@@ -569,10 +572,10 @@ export class DocxGenerator {
     });
   }
 
-  private parseFormattedRuns(text: string): TextRun[] {
-    const runs: TextRun[] = [];
-    // Tokenize: bold, italic, code, highlight (==text==), sub (~text~), sup (^text^), strike (~~text~~), insert (++text++), kbd (<kbd>text</kbd>), math ($text$)
-    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|==.*?==|~~.*?~~|\+\+.*?\+\+|\~.*?\~|\^.*?\^|<kbd>.*?<\/kbd>|\$[^\$\n]+?\$|\[\^[^\]]+\])/g;
+  private parseFormattedRuns(text: string): (TextRun | ExternalHyperlink)[] {
+    const runs: (TextRun | ExternalHyperlink)[] = [];
+    // Tokenize: bold, italic, code, highlight (==text==), sub (~text~), sup (^text^), strike (~~text~~), insert (++text++), kbd (<kbd>text</kbd>), math ($text$), footnote ([^fn]), link ([text](url))
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|==.*?==|~~.*?~~|\+\+.*?\+\+|\~.*?\~|\^.*?\^|<kbd>.*?<\/kbd>|\$[^\$\n]+?\$|\[\^[^\]]+\]|\[[^\]]+\]\(https?:\/\/[^\s\)]+\))/g;
     const parts = text.split(regex);
 
     for (const part of parts) {
@@ -622,6 +625,25 @@ export class DocxGenerator {
             color: this.theme.secondary.replace('#', '')
           })
         );
+      } else if (part.startsWith('[') && part.includes('](')) {
+        const match = part.match(/^\[(.*?)\]\((https?:\/\/[^\s\)]+)\)$/);
+        if (match) {
+          runs.push(
+            new ExternalHyperlink({
+              children: [
+                new TextRun({
+                  text: match[1],
+                  style: 'Hyperlink',
+                  color: this.theme.secondary.replace('#', ''),
+                  underline: {}
+                })
+              ],
+              link: match[2]
+            })
+          );
+        } else {
+          runs.push(new TextRun({ text: part }));
+        }
       } else {
         runs.push(new TextRun({ text: part }));
       }
@@ -754,13 +776,7 @@ export class DocxGenerator {
                   spacing: { after: 80 }
                 }),
                 new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: body,
-                      size: 21,
-                      color: this.theme.text.replace('#', '')
-                    })
-                  ],
+                  children: this.parseFormattedRuns(body),
                   spacing: { after: 0 }
                 })
               ]

@@ -86,6 +86,7 @@ export class GoogleDocsHtmlGenerator {
     const topToc = (!hasManualToc && includeToc && toc.length >= 2) ? tocHtml : '';
 
     const contentFragment = `
+<meta charset="utf-8">
 <!-- Google Docs Compatible Formatted Document -->
 <div style="position: relative; font-family: ${effectiveFontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; background-color: ${this.theme.bgDocument}; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
   <a name="top"></a>
