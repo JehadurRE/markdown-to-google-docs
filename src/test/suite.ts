@@ -572,6 +572,21 @@ The quick brown fox jumps over the lazy dog. Continuous software delivery requir
     assert.ok(result.value.includes('Engineering &amp; Architecture Strategy'), 'Document title missing in converted HTML');
   });
 
+  // Test 29: PDF Viewer & Offline Assets
+  await test('PdfViewerProvider viewType is registered and offline PDF.js assets exist', () => {
+    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const pdfEditor = pkg.contributes.customEditors.find((e: any) => e.viewType === 'md2gdocs.pdfEditor');
+    assert.ok(pdfEditor, 'md2gdocs.pdfEditor not registered in package.json');
+    assert.strictEqual(pdfEditor.priority, 'default', 'md2gdocs.pdfEditor priority must be default');
+
+    const pdfJsPath = path.resolve('media/pdf/pdf.min.js');
+    const pdfWorkerPath = path.resolve('media/pdf/pdf.worker.min.js');
+    assert.ok(fs.existsSync(pdfJsPath), 'media/pdf/pdf.min.js missing');
+    assert.ok(fs.existsSync(pdfWorkerPath), 'media/pdf/pdf.worker.min.js missing');
+    assert.ok(fs.statSync(pdfJsPath).size > 100000, 'pdf.min.js corrupted');
+    assert.ok(fs.statSync(pdfWorkerPath).size > 500000, 'pdf.worker.min.js corrupted');
+  });
+
   console.log(`\n========================================`);
   console.log(`Results: ${passed} passed, ${failed} failed`);
   console.log(`========================================\n`);

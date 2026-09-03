@@ -9,6 +9,7 @@ import { GoogleAuthService } from './google/googleAuth';
 import { GoogleDriveClient } from './google/googleDriveClient';
 import { GoogleDocsPreviewPanel } from './preview/previewPanel';
 import { DocxViewerProvider } from './preview/docxViewerProvider';
+import { PdfViewerProvider } from './preview/pdfViewerProvider';
 import { ALL_THEMES, getTheme } from './converter/themes';
 
 let authService: GoogleAuthService;
@@ -269,12 +270,20 @@ export function activate(context: vscode.ExtensionContext) {
             const pdfGen = new PdfGenerator({ theme, baseDir });
             await pdfGen.generatePdf(document.getText(), targetUri.fsPath);
 
+            const autoOpen = config.get<boolean>('openPdfAfterExport', true);
+            if (autoOpen) {
+              vscode.commands.executeCommand('vscode.openWith', targetUri, 'md2gdocs.pdfEditor');
+            }
+
             const choice = await vscode.window.showInformationMessage(
-              `🎉 Saved PDF: ${path.basename(targetUri.fsPath)}`,
-              'Open File',
+              `🎉 Exported PDF: ${path.basename(targetUri.fsPath)}`,
+              'View in VS Code',
+              'Open External',
               'Reveal in File Explorer'
             );
-            if (choice === 'Open File') {
+            if (choice === 'View in VS Code') {
+              vscode.commands.executeCommand('vscode.openWith', targetUri, 'md2gdocs.pdfEditor');
+            } else if (choice === 'Open External') {
               vscode.env.openExternal(targetUri);
             } else if (choice === 'Reveal in File Explorer') {
               vscode.commands.executeCommand('revealFileInOS', targetUri);
@@ -348,7 +357,8 @@ export function activate(context: vscode.ExtensionContext) {
     selectThemeCommand,
     authCommand,
     logoutCommand,
-    DocxViewerProvider.register(context)
+    DocxViewerProvider.register(context),
+    PdfViewerProvider.register(context)
   );
 }
 

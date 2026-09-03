@@ -36,7 +36,8 @@
   ],
   "activationEvents": [
     "onLanguage:markdown",
-    "onCustomEditor:md2gdocs.docxEditor"
+    "onCustomEditor:md2gdocs.docxEditor",
+    "onCustomEditor:md2gdocs.pdfEditor"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -213,6 +214,16 @@
           }
         ],
         "priority": "default"
+      },
+      {
+        "viewType": "md2gdocs.pdfEditor",
+        "displayName": "Google Docs PDF Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.pdf"
+          }
+        ],
+        "priority": "default"
       }
     ],
     "configuration": {
@@ -309,6 +320,11 @@
           "type": "string",
           "default": "",
           "description": "Translucent watermark overlay text (e.g. 'CONFIDENTIAL', 'DRAFT') across document pages."
+        },
+        "md2gdocs.openPdfAfterExport": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the exported PDF in the built-in PDF viewer."
         }
       }
     }
@@ -335,6 +351,7 @@
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.9.0",
     "mammoth": "^1.12.2",
-    "markdown-it": "^14.0.0"
+    "markdown-it": "^14.0.0",
+    "pdfjs-dist": "^3.11.174"
   }
 }

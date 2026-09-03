@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.2.0] - 2026-09-04
 
 ### Added
+- **Default High-Performance PDF Document Viewer**: Integrated native VS Code custom editor (`md2gdocs.pdfEditor`) set as default for `*.pdf` files.
+- **Hardware-Accelerated Offline PDF.js Engine**: Bundled Mozilla's `pdf.min.js` and `pdf.worker.min.js` into extension assets for 100% offline, zero-latency vector rendering with device pixel ratio scaling.
+- **Rich PDF Control Toolbar**: Includes continuous page scroll, page jump (`Page [ 1 ] of 9`), First/Last navigation, Zoom controls (`Fit Width`, `Fit Page`, `75%` to `200%`), 90° Clockwise Rotation, Night Mode canvas inversion, and direct Print actions.
+- **Auto-Open on PDF Export**: Setting `md2gdocs.openPdfAfterExport` automatically displays freshly generated PDFs inside the built-in viewer immediately upon export.
 - **Interactive DOCX Viewer Controls**: Added responsive Zoom In (`+`), Zoom Out (`−`), and Reset (`100%`) with keyboard shortcuts (`Ctrl + +`, `Ctrl + -`, `Ctrl + 0`).
 - **Dark / Light Theme Toggle in Word Viewer**: Eye-strain reduction mode (`🌓 Theme`) with persistent local preference caching.
 - **Document Telemetry Badges in Word Viewer**: Live pill indicators for file size (`KB`) and real-time word count.

@@ -89,10 +89,12 @@ Most Markdown-to-Docs extensions produce plain, broken documents where tables lo
 2. Switch themes in real-time, inspect page breaks, review reading time, and test bookmark links.
 3. Click toolbar buttons for 1-click copy, Google Drive upload, PDF export, or Word export.
 
-### 3. Built-in Word DOCX Viewer
-1. Click on any `.docx` file in your VS Code Explorer.
-2. The extension automatically opens it in the built-in Google Docs / Word Viewer.
-3. Scroll through formatted pages, copy text, print, or click **"Open in Word"** to launch desktop Word.
+### 3. Built-in Word & PDF Viewers
+1. Click on any `.docx` or `.pdf` file in your VS Code Explorer.
+2. The extension automatically opens it in the built-in reader:
+   - **Word DOCX Viewer**: Formatted Google Docs view with responsive zoom (`+`/`−`), Dark/Light mode, word count, print, and copy.
+   - **PDF Document Viewer**: High-DPI hardware-accelerated viewer with continuous scrolling, page jump, rotate ↷ 90°, night mode inversion, and 100% offline PDF.js rendering.
+3. Automatically opens newly generated PDFs right after export!
 
 ### 4. Cloud Sync to Google Drive
 1. Press `Ctrl+Shift+P` and choose:
