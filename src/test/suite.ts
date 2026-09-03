@@ -6,6 +6,7 @@ import { GoogleDocsHtmlGenerator } from '../converter/googleDocsHtmlGenerator';
 import { DocxGenerator } from '../converter/docxGenerator';
 import { PdfGenerator } from '../converter/pdfGenerator';
 import { ALL_THEMES, getTheme } from '../converter/themes';
+import * as mammoth from 'mammoth';
 
 export async function runAllTests(): Promise<boolean> {
   let passed = 0;
@@ -560,6 +561,15 @@ The quick brown fox jumps over the lazy dog. Continuous software delivery requir
     assert.ok(result.wordCount > 10, `Expected word count > 10, got ${result.wordCount}`);
     assert.strictEqual(result.readingTimeMinutes, 1, 'Expected 1 min reading time');
     assert.ok(result.clipboardHtml.includes('Reading Time:'), 'Reading time badge missing in header card');
+  });
+
+  // Test 28: DOCX Reader & Viewer conversion (Default Word viewer)
+  await test('mammoth converts DOCX document to Google Docs compatible HTML', async () => {
+    const docxPath = path.resolve('demo-sample.docx');
+    assert.ok(fs.existsSync(docxPath), 'demo-sample.docx not found');
+    const result = await mammoth.convertToHtml({ path: docxPath });
+    assert.ok(result.value.length > 500, 'Converted HTML too short');
+    assert.ok(result.value.includes('Engineering &amp; Architecture Strategy'), 'Document title missing in converted HTML');
   });
 
   console.log(`\n========================================`);

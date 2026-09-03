@@ -8,6 +8,7 @@ import { ClipboardHelper } from './clipboard/clipboardHelper';
 import { GoogleAuthService } from './google/googleAuth';
 import { GoogleDriveClient } from './google/googleDriveClient';
 import { GoogleDocsPreviewPanel } from './preview/previewPanel';
+import { DocxViewerProvider } from './preview/docxViewerProvider';
 import { ALL_THEMES, getTheme } from './converter/themes';
 
 let authService: GoogleAuthService;
@@ -346,7 +347,8 @@ export function activate(context: vscode.ExtensionContext) {
     exportPdfCommand,
     selectThemeCommand,
     authCommand,
-    logoutCommand
+    logoutCommand,
+    DocxViewerProvider.register(context)
   );
 }
 

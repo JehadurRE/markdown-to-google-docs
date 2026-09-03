@@ -2,7 +2,7 @@
   "name": "markdown-to-google-docs",
   "displayName": "Markdown to Google Docs - Modern & Professional",
   "description": "Convert any Markdown file to a beautifully styled, professional Google Doc with 1-click cloud sync, rich clipboard copy, live preview, and modern themes.",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "publisher": "JehadurRE",
   "icon": "media/icon.png",
   "galleryBanner": {
@@ -35,7 +35,8 @@
     "documentation"
   ],
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onCustomEditor:md2gdocs.docxEditor"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -202,6 +203,18 @@
         "when": "editorTextFocus && editorLangId == markdown"
       }
     ],
+    "customEditors": [
+      {
+        "viewType": "md2gdocs.docxEditor",
+        "displayName": "Google Docs / Word Document Viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.docx"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
     "configuration": {
       "title": "Markdown to Google Docs",
       "properties": {
@@ -321,6 +334,7 @@
     "docx": "^8.5.0",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.9.0",
+    "mammoth": "^1.12.2",
     "markdown-it": "^14.0.0"
   }
 }

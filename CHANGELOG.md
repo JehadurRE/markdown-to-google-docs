@@ -4,6 +4,20 @@ All notable changes to the **Markdown to Google Docs** (`md2gdocs`) extension wi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-03
+
+### Added
+- **Default Word DOCX Viewer in VS Code**: Integrated custom editor (`md2gdocs.docxEditor`) set as default for `*.docx` files. Automatically renders Word documents into formatted Google Docs view with Print, Copy, and external launch actions.
+- **Interactive Animated Demo Showcase**: Created embedded vector showcase animation (`media/demo.svg`) demonstrating split-screen markdown editing, live preview sync, and clipboard copying.
+- **Running Headers & Running Footers**: Supports global settings and per-document frontmatter (`header: "..."`, `footer: "..."`) across Google Docs HTML, Word `.docx`, and PDF exports.
+- **Dynamic Pagination ("Page X of Y")**: Native `PageNumber.CURRENT` & `TOTAL_PAGES` in Word `.docx`, CSS print counters in PDF, and preview toolbar page stats.
+- **Hard Page Breaks**: Support for `<!-- pagebreak -->`, `<!-- newpage -->`, `<!-- pb -->`, `\pagebreak`, and `===` across HTML, Word `.docx`, PDF, and Live Preview.
+- **Corporate Translucent Watermarks**: Support for `watermark: "CONFIDENTIAL"` or `watermark: "DRAFT"` with angled translucent text overlay.
+- **Mermaid Diagram Rendering**: Intercepts ````mermaid` code blocks and converts them into structured diagram cards.
+- **Document Statistics & Reading Time**: Automatically calculates word count and estimated reading time (`~X min read`) displayed in the executive header card and preview toolbar.
+- **Definition Lists & Text Alignment Directives**: Semantic `<dl><dt><dd>` rendering and alignment directives (`-> center <-`, `-> right ->`).
+- **Comprehensive Documentation Refresh**: Overhauled `README.md` with complete YAML frontmatter spec, keyboard shortcuts table, and setting matrices.
+
 ---
 
 ## [1.0.3] - 2026-09-03
