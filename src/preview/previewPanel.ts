@@ -136,6 +136,7 @@ export class GoogleDocsPreviewPanel {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: https: http: vscode-webview:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <style>
     * { box-sizing: border-box; }
     body {

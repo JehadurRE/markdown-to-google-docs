@@ -1,10 +1,14 @@
 .vscode/**
 .vscode-test/**
 src/**
+out/**
 scripts/**
 test-assets/**
-demo-sample.docx
-demo-sample.html
+.github/**
+demo-sample.*
+test-run.js
+implementation_plan.md
 tsconfig.json
 **/*.map
 .gitignore
+node_modules/**

@@ -4,6 +4,14 @@
 
 # Markdown to Google Docs (`md2gdocs`)
 
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=JehadurRE.markdown-to-google-docs"><img src="https://img.shields.io/visual-studio-marketplace/v/JehadurRE.markdown-to-google-docs?style=flat-square&logo=visual-studio-code&logoColor=white&color=2563eb" alt="Marketplace Version" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=JehadurRE.markdown-to-google-docs"><img src="https://img.shields.io/visual-studio-marketplace/i/JehadurRE.markdown-to-google-docs?style=flat-square&color=10b981" alt="Installs" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=JehadurRE.markdown-to-google-docs"><img src="https://img.shields.io/visual-studio-marketplace/r/JehadurRE.markdown-to-google-docs?style=flat-square&color=f59e0b" alt="Rating" /></a>
+  <a href="https://github.com/JehadurRE/markdown-to-google-docs/actions"><img src="https://img.shields.io/github/actions/workflow/status/JehadurRE/markdown-to-google-docs/ci.yml?branch=master&style=flat-square&logo=github&label=CI" alt="CI Status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6366f1?style=flat-square" alt="License" /></a>
+</p>
+
 **Convert any Markdown file into a beautiful, modern, and professional Google Doc with 1-click cloud sync, rich clipboard copy, live preview, and executive themes.**
 
 ---
