@@ -120,9 +120,44 @@ export class PdfGenerator {
       .page-container {
         max-width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 14mm 0 !important;
         box-shadow: none !important;
         border-radius: 0 !important;
+      }
+      .doc-running-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        border-bottom: 1px solid #CBD5E1 !important;
+        padding-bottom: 4px !important;
+        font-size: 8.5pt !important;
+        color: #64748B !important;
+      }
+      .doc-running-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        border-top: 1px solid #CBD5E1 !important;
+        padding-top: 4px !important;
+        font-size: 8.5pt !important;
+        color: #64748B !important;
+      }
+      .gdoc-pagebreak {
+        page-break-before: always !important;
+        break-before: page !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-top: none !important;
+      }
+      .gdoc-pagebreak::after {
+        display: none !important;
       }
       a {
         text-decoration: none !important;

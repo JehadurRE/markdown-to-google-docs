@@ -118,13 +118,13 @@ export class GoogleDocsPreviewPanel {
 
       const result = generator.convert(markdownContent);
       this.panel.title = `Preview: ${result.title}`;
-      this.panel.webview.html = this.buildWebviewHtml(result.html, this.selectedTheme);
+      this.panel.webview.html = this.buildWebviewHtml(result.html, this.selectedTheme, result.wordCount, result.readingTimeMinutes);
     } catch (e: any) {
       this.panel.webview.html = `<html><body><h3>Error rendering preview: ${e.message}</h3></body></html>`;
     }
   }
 
-  private buildWebviewHtml(documentHtml: string, currentTheme: string): string {
+  private buildWebviewHtml(documentHtml: string, currentTheme: string, wordCount: number = 0, readingTimeMinutes: number = 1): string {
     const themeOptions = Object.keys(ALL_THEMES)
       .map(
         (key) =>
@@ -229,6 +229,26 @@ export class GoogleDocsPreviewPanel {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
       border-radius: 2px;
     }
+    .gdoc-pagebreak {
+      display: block;
+      border-top: 2px dashed #cbd5e1;
+      margin: 32px 0;
+      position: relative;
+      text-align: center;
+    }
+    .gdoc-pagebreak::after {
+      content: 'PAGE BREAK';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f1f5f9;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -238,6 +258,11 @@ export class GoogleDocsPreviewPanel {
       <select class="theme-select" id="themeSelect" onchange="changeTheme()">
         ${themeOptions}
       </select>
+      <div class="toolbar-stats" style="font-size: 11px; color: #94a3b8; margin-left: 10px; display: inline-flex; align-items: center; gap: 6px;">
+        <span>📝 ${wordCount} words</span>
+        <span>•</span>
+        <span>⏱️ ~${readingTimeMinutes} min</span>
+      </div>
     </div>
     <div class="toolbar-actions">
       <button class="btn" onclick="copyForGDocs()">📋 Copy for Google Docs</button>

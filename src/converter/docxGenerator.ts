@@ -10,7 +10,11 @@ import {
   BorderStyle,
   WidthType,
   AlignmentType,
-  ShadingType
+  ShadingType,
+  Header,
+  Footer,
+  PageNumber,
+  PageBreak
 } from 'docx';
 import { ConverterOptions, FrontmatterData, ThemeColors } from './types';
 import { getTheme } from './themes';
@@ -27,7 +31,9 @@ export class DocxGenerator {
 
   public async generateDocx(markdownContent: string): Promise<Buffer> {
     const parser = new MarkdownParser(this.options);
-    const { frontmatter, bodyMarkdown } = parser.parse(markdownContent);
+    const { frontmatter, bodyMarkdown, wordCount, readingTimeMinutes } = parser.parse(markdownContent);
+    (frontmatter as any).wordCount = wordCount;
+    (frontmatter as any).readingTimeMinutes = readingTimeMinutes;
 
     const docChildren: (Paragraph | Table)[] = [];
 
@@ -40,6 +46,11 @@ export class DocxGenerator {
     // Clean hex colors (remove leading #)
     const primaryHex = this.theme.primary.replace('#', '');
     const textHex = this.theme.text.replace('#', '');
+    const mutedHex = this.theme.textMuted.replace('#', '');
+
+    const headerText = frontmatter.header || this.options.headerText || '';
+    const footerText = frontmatter.footer || this.options.footerText || '';
+    const showPageNumbers = frontmatter.page_numbers !== undefined ? Boolean(frontmatter.page_numbers) : (this.options.showPageNumbers !== false);
 
     const doc = new Document({
       styles: {
@@ -104,6 +115,54 @@ export class DocxGenerator {
               }
             }
           },
+          headers: headerText ? {
+            default: new Header({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  children: [
+                    new TextRun({
+                      text: headerText,
+                      size: 18,
+                      color: mutedHex
+                    })
+                  ]
+                })
+              ]
+            })
+          } : undefined,
+          footers: (footerText || showPageNumbers) ? {
+            default: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  children: [
+                    new TextRun({
+                      text: footerText || 'Confidential',
+                      size: 18,
+                      color: mutedHex
+                    }),
+                    ...(showPageNumbers ? [
+                      new TextRun({
+                        text: '    |    Page ',
+                        size: 18,
+                        color: mutedHex
+                      }),
+                      new TextRun({
+                        children: [PageNumber.CURRENT]
+                      }),
+                      new TextRun({
+                        text: ' of '
+                      }),
+                      new TextRun({
+                        children: [PageNumber.TOTAL_PAGES]
+                      })
+                    ] : [])
+                  ]
+                })
+              ]
+            })
+          } : undefined,
           children: docChildren
         }
       ]
@@ -158,6 +217,9 @@ export class DocxGenerator {
     if (frontmatter.date) metaParts.push(`Date: ${frontmatter.date}`);
     if (frontmatter.version) metaParts.push(`Version: v${frontmatter.version}`);
     if (frontmatter.status) metaParts.push(`Status: ${frontmatter.status.toUpperCase()}`);
+    if (frontmatter.show_stats !== false && (frontmatter as any).wordCount) {
+      metaParts.push(`Reading Time: ~${(frontmatter as any).readingTimeMinutes} min (${(frontmatter as any).wordCount} words)`);
+    }
 
     if (metaParts.length > 0) {
       children.push(
@@ -293,6 +355,47 @@ export class DocxGenerator {
       } else if (/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/i.test(line)) {
         // Skip manual TOC tag in DOCX (or ignore)
         continue;
+      } else if (line.includes('gdoc-pagebreak') || /^[ \t]*(?:<!--[ \t]*(?:pagebreak|newpage|pb)[ \t]*-->|\\pagebreak|===)[ \t]*$/i.test(line)) {
+        // Page break
+        children.push(
+          new Paragraph({
+            children: [new PageBreak()]
+          })
+        );
+        continue;
+      } else if (line.trim().startsWith('->') && line.trim().endsWith('<-')) {
+        // Centered paragraph
+        const text = line.trim().slice(2, -2).trim();
+        children.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: this.parseFormattedRuns(text),
+            spacing: { after: 120 }
+          })
+        );
+        continue;
+      } else if (line.trim().startsWith('->') && line.trim().endsWith('->')) {
+        // Right-aligned paragraph
+        const text = line.trim().slice(2, -2).trim();
+        children.push(
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            children: this.parseFormattedRuns(text),
+            spacing: { after: 120 }
+          })
+        );
+        continue;
+      } else if (line.trim().startsWith(': ') && i > 0 && lines[i - 1].trim().length > 0) {
+        // Definition list description
+        const defText = line.trim().slice(2).trim();
+        children.push(
+          new Paragraph({
+            indent: { left: 720 }, // 0.5 inch hanging indent
+            children: this.parseFormattedRuns(defText),
+            spacing: { after: 120 }
+          })
+        );
+        continue;
       } else if (line.trim().startsWith('- [ ] ')) {
         // Unchecked task list
         const text = line.trim().replace(/^- \[ \] /, '');
@@ -305,6 +408,7 @@ export class DocxGenerator {
             spacing: { after: 100 }
           })
         );
+        continue;
       } else if (line.trim().startsWith('- [x] ') || line.trim().startsWith('- [X] ')) {
         // Checked task list with strikethrough
         const text = line.trim().replace(/^- \[[xX]\] /, '');

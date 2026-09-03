@@ -271,6 +271,31 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically open the created Google Doc in your default browser after upload."
+        },
+        "md2gdocs.headerText": {
+          "type": "string",
+          "default": "",
+          "description": "Running header text displayed at the top of pages in documents and PDFs."
+        },
+        "md2gdocs.footerText": {
+          "type": "string",
+          "default": "",
+          "description": "Running footer text displayed at the bottom of pages in documents and PDFs."
+        },
+        "md2gdocs.showPageNumbers": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show dynamic page numbers in headers, footers, and PDF export."
+        },
+        "md2gdocs.showStats": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display reading time and word count in the executive header card."
+        },
+        "md2gdocs.watermark": {
+          "type": "string",
+          "default": "",
+          "description": "Translucent watermark overlay text (e.g. 'CONFIDENTIAL', 'DRAFT') across document pages."
         }
       }
     }

@@ -14,7 +14,7 @@ export class GoogleDocsHtmlGenerator {
   public convert(markdownContent: string): ConversionResult {
     // 1. Initial Parse
     const initialParser = new MarkdownParser(this.options);
-    const { frontmatter, parsedHtml, toc, footnotes, hasManualToc } = initialParser.parse(markdownContent);
+    const { frontmatter, parsedHtml, toc, footnotes, hasManualToc, wordCount, readingTimeMinutes } = initialParser.parse(markdownContent);
 
     // 2. Apply per-document Frontmatter overrides
     const effectiveThemeName = frontmatter.theme || this.options.theme;
@@ -24,6 +24,11 @@ export class GoogleDocsHtmlGenerator {
     const includeToc = frontmatter.toc !== undefined ? Boolean(frontmatter.toc) : (this.options.includeToc !== false);
     const tocDepth = typeof frontmatter.toc_depth === 'number' ? frontmatter.toc_depth : (this.options.tocDepth || 3);
     const tableZebra = frontmatter.zebra_stripes !== undefined ? Boolean(frontmatter.zebra_stripes) : (this.options.tableZebraStriping !== false);
+    const watermark = frontmatter.watermark || this.options.watermark || '';
+    const headerText = frontmatter.header || this.options.headerText || '';
+    const footerText = frontmatter.footer || this.options.footerText || '';
+    const showPageNumbers = frontmatter.page_numbers !== undefined ? Boolean(frontmatter.page_numbers) : Boolean(this.options.showPageNumbers);
+    const showStats = frontmatter.show_stats !== undefined ? Boolean(frontmatter.show_stats) : (this.options.showStats !== false);
 
     // Determine document title: frontmatter title > first H1 > fallback
     let docTitle = frontmatter.title || '';
@@ -37,7 +42,7 @@ export class GoogleDocsHtmlGenerator {
     }
 
     // 3. Build Executive Header Card from Frontmatter
-    const headerHtml = this.generateExecutiveHeader(frontmatter, docTitle);
+    const headerHtml = this.generateExecutiveHeader(frontmatter, docTitle, { wordCount, readingTimeMinutes, showStats });
 
     // 4. Build Table of Contents
     const tocHtml = (includeToc && toc.length >= 2)
@@ -57,19 +62,42 @@ export class GoogleDocsHtmlGenerator {
       ? this.generateFootnotesSection(footnotes)
       : '';
 
+    // Watermark HTML
+    const watermarkHtml = watermark ? `
+<div class="gdoc-watermark" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 72pt; font-weight: 900; color: rgba(148, 163, 184, 0.08); text-transform: uppercase; pointer-events: none; user-select: none; z-index: 0; letter-spacing: 12px; white-space: nowrap;">
+  ${this.escapeHtml(watermark)}
+</div>` : '';
+
+    // Running Header HTML
+    const runningHeaderHtml = headerText ? `
+<div class="doc-running-header" style="width: 100%; border-bottom: 1pt solid #E2E8F0; padding-bottom: 6pt; margin-bottom: 16pt; font-size: 8.5pt; color: ${this.theme.textMuted}; display: flex; justify-content: space-between;">
+  <span>${this.escapeHtml(headerText)}</span>
+  <span>${this.escapeHtml(docTitle)}</span>
+</div>` : '';
+
+    // Running Footer HTML
+    const runningFooterHtml = (footerText || showPageNumbers) ? `
+<div class="doc-running-footer" style="width: 100%; border-top: 1pt solid #E2E8F0; padding-top: 6pt; margin-top: 24pt; font-size: 8.5pt; color: ${this.theme.textMuted}; display: flex; justify-content: space-between;">
+  <span>${this.escapeHtml(footerText || 'Confidential')}</span>
+  ${showPageNumbers ? `<span class="page-counter">Page 1</span>` : ''}
+</div>` : '';
+
     // Combine all components (top TOC is only prepended if NO manual [TOC] was placed)
     const topToc = (!hasManualToc && includeToc && toc.length >= 2) ? tocHtml : '';
 
     const contentFragment = `
 <!-- Google Docs Compatible Formatted Document -->
-<div style="font-family: ${effectiveFontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; background-color: ${this.theme.bgDocument}; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
+<div style="position: relative; font-family: ${effectiveFontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; background-color: ${this.theme.bgDocument}; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
   <a name="top"></a>
+  ${watermarkHtml}
+  ${runningHeaderHtml}
   ${headerHtml}
   ${topToc}
-  <div class="doc-body">
+  <div class="doc-body" style="position: relative; z-index: 1;">
     ${styledBodyHtml}
   </div>
   ${footnotesHtml}
+  ${runningFooterHtml}
 </div>
 `.trim();
 
@@ -102,6 +130,27 @@ export class GoogleDocsHtmlGenerator {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
       border-radius: 4px;
       min-height: 1056px;
+      position: relative;
+    }
+    .gdoc-pagebreak {
+      display: block;
+      border-top: 2px dashed #CBD5E1;
+      margin: 32px 0;
+      position: relative;
+      text-align: center;
+    }
+    .gdoc-pagebreak::after {
+      content: 'PAGE BREAK';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #F1F5F9;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      border-radius: 4px;
     }
     @media print {
       body { background: transparent; }
@@ -110,6 +159,17 @@ export class GoogleDocsHtmlGenerator {
         padding: 0;
         box-shadow: none;
         max-width: 100%;
+      }
+      .gdoc-pagebreak {
+        border-top: none !important;
+        margin: 0 !important;
+        height: 0 !important;
+      }
+      .gdoc-pagebreak::after {
+        display: none !important;
+      }
+      @page {
+        margin: 18mm 16mm;
       }
     }
   </style>
@@ -127,11 +187,17 @@ export class GoogleDocsHtmlGenerator {
       frontmatter,
       title: docTitle,
       toc,
-      footnotes
+      footnotes,
+      wordCount,
+      readingTimeMinutes
     };
   }
 
-  private generateExecutiveHeader(frontmatter: FrontmatterData, fallbackTitle: string): string {
+  private generateExecutiveHeader(
+    frontmatter: FrontmatterData,
+    fallbackTitle: string,
+    stats?: { wordCount: number; readingTimeMinutes: number; showStats: boolean }
+  ): string {
     const title = frontmatter.title || fallbackTitle;
     const subtitle = frontmatter.subtitle || frontmatter.description || '';
     const author = frontmatter.author || (frontmatter.authors ? frontmatter.authors.join(', ') : '');
@@ -140,9 +206,9 @@ export class GoogleDocsHtmlGenerator {
     const status = frontmatter.status || '';
     const organization = frontmatter.organization || '';
     const tags = frontmatter.tags || [];
-
-    const hasAnyMeta = subtitle || author || date || version || status || organization || (tags && tags.length > 0);
-    if (!hasAnyMeta && title === fallbackTitle) {
+    const hasStats = Boolean(stats && stats.showStats && stats.wordCount > 0);
+    const hasAnyMeta = subtitle || author || date || version || status || organization || (tags && tags.length > 0) || hasStats;
+    if (!hasAnyMeta && !frontmatter.title) {
       return '';
     }
 
@@ -162,6 +228,9 @@ export class GoogleDocsHtmlGenerator {
     }
     if (status) {
       metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Status:</strong> <span style="background-color: #DEF7EC; color: #03543F; padding: 1.5pt 5.5pt; border-radius: 3pt; font-weight: 600; font-size: 8.5pt; text-transform: uppercase;">${this.escapeHtml(status)}</span></span>`);
+    }
+    if (stats && stats.showStats && stats.wordCount > 0) {
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Reading Time:</strong> ~${stats.readingTimeMinutes} min (${stats.wordCount.toLocaleString()} words)</span>`);
     }
 
     let tagsHtml = '';

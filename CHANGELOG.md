@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.0.3] - 2026-09-03
 
 ### Added
+- **Running Headers & Running Footers**: Supports global settings and per-document frontmatter (`header: "..."`, `footer: "..."`) across Google Docs HTML, Word `.docx`, and PDF exports.
+- **Dynamic Pagination ("Page X of Y")**: Native `PageNumber.CURRENT` & `TOTAL_PAGES` in Word `.docx`, CSS print counters in PDF, and preview toolbar page stats.
+- **Hard Page Breaks**: Support for `<!-- pagebreak -->`, `<!-- newpage -->`, `<!-- pb -->`, `\pagebreak`, and `===` across HTML, Word `.docx`, PDF, and Live Preview.
+- **Corporate Translucent Watermarks**: Support for `watermark: "CONFIDENTIAL"` or `watermark: "DRAFT"` with angled translucent text overlay.
+- **Mermaid Diagram Rendering**: Intercepts ````mermaid` code blocks and converts them into structured diagram cards.
+- **Document Statistics & Reading Time**: Automatically calculates word count and estimated reading time (`~X min read`) displayed in the executive header card and preview toolbar.
+- **Definition Lists & Text Alignment Directives**: Semantic `<dl><dt><dd>` rendering and alignment directives (`-> center <-`, `-> right ->`).
 - **Native Print-Quality PDF Export**: Cross-platform headless browser engine automatically detecting Microsoft Edge, Google Chrome, Brave, or Chromium across Windows, macOS, and Linux.
 - **Preview Toolbar PDF Export**: Added 1-click `📄 Export PDF` button in the live side-by-side Google Docs preview panel.
 - **Linux Wayland & X11 Clipboard Parity**: Auto-detects Wayland sessions (`wl-copy -t text/html`) with seamless fallback to `xclip` and `xsel`.

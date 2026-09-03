@@ -66,6 +66,11 @@ export interface FrontmatterData {
   zebra_stripes?: boolean;
   code_theme?: 'github-light' | 'github-dark' | 'solarized-light' | 'monokai-subtle';
   font?: string;
+  header?: string;
+  footer?: string;
+  watermark?: string;
+  page_numbers?: boolean;
+  show_stats?: boolean;
   [key: string]: any;
 }
 
@@ -93,6 +98,11 @@ export interface ConverterOptions {
   codeBlockLanguageBadges?: boolean;
   enableFootnotes?: boolean;
   baseDir?: string;
+  headerText?: string;
+  footerText?: string;
+  watermark?: string;
+  showPageNumbers?: boolean;
+  showStats?: boolean;
 }
 
 export interface ConversionResult {
@@ -102,4 +112,6 @@ export interface ConversionResult {
   title: string;
   toc: TocItem[];
   footnotes: FootnoteItem[];
+  wordCount: number;
+  readingTimeMinutes: number;
 }

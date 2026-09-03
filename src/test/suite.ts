@@ -475,6 +475,93 @@ Text with ==highlight==, ~sub~, ^sup^, and $E=mc^2$.
     assert.ok(fs.existsSync(browser), `Found browser path does not exist: ${browser}`);
   });
 
+  // Test 22: Page Breaks (<!-- pagebreak -->, \pagebreak, ===)
+  await test('Page breaks render as gdoc-pagebreak dividers in HTML and page breaks in DOCX', async () => {
+    const md = `# Section 1\nContent 1\n<!-- pagebreak -->\n# Section 2\nContent 2\n\\pagebreak\n# Section 3\n===`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.html.includes('gdoc-pagebreak'), 'HTML missing gdoc-pagebreak element');
+
+    const docxGen = new DocxGenerator();
+    const buffer = await docxGen.generateDocx(md);
+    assert.ok(buffer.length > 2000, 'DOCX buffer with page breaks generated');
+  });
+
+  // Test 23: Text Alignment Directives
+  await test('Text alignment directives (-> center <- and -> right ->) format properly', () => {
+    const md = `-> Centered Title <-\n\n-> Right Signature ->`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('text-align: center'), 'Centered text alignment missing');
+    assert.ok(result.clipboardHtml.includes('text-align: right'), 'Right text alignment missing');
+  });
+
+  // Test 24: Definition Lists
+  await test('Definition lists (Term \\n : Definition) render semantic dl, dt, dd elements', () => {
+    const md = `API Gateway\n: Manages and routes inbound HTTP requests to microservices.`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('<dl'), 'Definition list <dl> missing');
+    assert.ok(result.clipboardHtml.includes('<dt'), 'Definition term <dt> missing');
+    assert.ok(result.clipboardHtml.includes('<dd'), 'Definition description <dd> missing');
+  });
+
+  // Test 25: Running Headers, Footers, and Page Numbers
+  await test('Running headers, footers, and page numbers render across HTML, DOCX, and PDF', async () => {
+    const md = `---
+title: "Corporate Contract"
+header: "ACME CORP - STRICTLY CONFIDENTIAL"
+footer: "Legal Department - All Rights Reserved"
+page_numbers: true
+---
+# Contract Details
+Terms and conditions.`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('doc-running-header'), 'Running header missing in HTML');
+    assert.ok(result.clipboardHtml.includes('ACME CORP - STRICTLY CONFIDENTIAL'), 'Header text missing');
+    assert.ok(result.clipboardHtml.includes('doc-running-footer'), 'Running footer missing in HTML');
+    assert.ok(result.clipboardHtml.includes('Page 1'), 'Page number missing in footer');
+
+    const docxGen = new DocxGenerator();
+    const buffer = await docxGen.generateDocx(md);
+    assert.ok(buffer.length > 2500, 'DOCX with headers and footers generated');
+  });
+
+  // Test 26: Corporate Translucent Watermarks
+  await test('Translucent watermark renders across HTML and PDF export', () => {
+    const md = `---
+title: "Draft Specification"
+watermark: "CONFIDENTIAL DRAFT"
+---
+# Specification`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('gdoc-watermark'), 'Watermark container missing');
+    assert.ok(result.clipboardHtml.includes('CONFIDENTIAL DRAFT'), 'Watermark text missing');
+  });
+
+  // Test 27: Document Statistics & Reading Time Calculation
+  await test('Document statistics calculates word count and estimated reading time', () => {
+    const md = `---
+title: "Article Analysis"
+show_stats: true
+---
+# Executive Summary
+The quick brown fox jumps over the lazy dog. Continuous software delivery requires automated testing.`;
+    const gen = new GoogleDocsHtmlGenerator();
+    const result = gen.convert(md);
+
+    assert.ok(result.wordCount > 10, `Expected word count > 10, got ${result.wordCount}`);
+    assert.strictEqual(result.readingTimeMinutes, 1, 'Expected 1 min reading time');
+    assert.ok(result.clipboardHtml.includes('Reading Time:'), 'Reading time badge missing in header card');
+  });
+
   console.log(`\n========================================`);
   console.log(`Results: ${passed} passed, ${failed} failed`);
   console.log(`========================================\n`);

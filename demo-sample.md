@@ -7,6 +7,11 @@ version: "2.5"
 status: "APPROVED"
 theme: "modern-corporate"
 toc_depth: 3
+header: "ACME CORP • ENGINEERING STRATEGY REPORT"
+footer: "Strictly Confidential • All Rights Reserved"
+page_numbers: true
+show_stats: true
+watermark: "CONFIDENTIAL"
 tags: [architecture, cloud, performance, google-docs, documentation]
 ---
 
@@ -25,7 +30,17 @@ This strategic document outlines our engineering roadmap, cloud architecture mil
 
 ---
 
+<!-- pagebreak -->
+
 # Architecture Pillars
+
+```mermaid
+graph TD
+  Markdown[Source Markdown] --> AST[Engine Parser AST]
+  AST --> GDocs[Google Docs Clipboard]
+  AST --> PDF[Print-Quality PDF]
+  AST --> DOCX[Executive DOCX]
+```
 
 The modern cloud stack is structured around four primary pillars:
 
@@ -33,6 +48,14 @@ The modern cloud stack is structured around four primary pillars:
 2. **Sub-second Response Times**: Global edge caching and optimal database query indexing.
 3. **Automated Documentation**: Converting Markdown specifications directly to styled Google Docs.
 4. **Resilient Security Posture**: OAuth 2.0 PKCE authentication with encrypted OS-level token caching.
+
+### Key Technical Definitions
+
+AST Engine
+: Abstract Syntax Tree translating Markdown tokens into inline CSS styles.
+
+Native Bookmarks
+: Google Docs named anchors enabling bidirectional Table of Contents jumping.
 
 > [!TIP] Pro Tip
 > Use the **"Copy for Google Docs"** command (`Ctrl+Shift+P` -> `Copy for Google Docs`), then press <kbd>Ctrl</kbd> + <kbd>V</kbd> inside any Google Doc for 100% style fidelity!

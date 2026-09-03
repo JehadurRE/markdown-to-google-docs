@@ -185,6 +185,8 @@ export class MarkdownParser {
     toc: TocItem[];
     footnotes: FootnoteItem[];
     hasManualToc: boolean;
+    wordCount: number;
+    readingTimeMinutes: number;
   } {
     this.footnotes = [];
     this.hasManualToc = false;
@@ -210,14 +212,32 @@ export class MarkdownParser {
     // 4. Post-process HTML
     html = this.postprocessHtml(html);
 
+    // 5. Calculate stats
+    const stats = this.calculateStats(markdownInput);
+
     return {
       frontmatter,
       bodyMarkdown: content,
       parsedHtml: html,
       toc: this.toc,
       footnotes: this.footnotes,
-      hasManualToc: this.hasManualToc
+      hasManualToc: this.hasManualToc,
+      wordCount: stats.wordCount,
+      readingTimeMinutes: stats.readingTimeMinutes
     };
+  }
+
+  public calculateStats(text: string): { wordCount: number; readingTimeMinutes: number } {
+    const clean = text
+      .replace(/---[\s\S]*?---/, '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`.*?`/g, ' ')
+      .replace(/[#*_~\[\]()]/g, ' ');
+    const words = clean.trim().split(/\s+/).filter(w => w.length > 0);
+    const wordCount = words.length;
+    const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
+    return { wordCount, readingTimeMinutes };
   }
 
   private preprocessMarkdown(markdown: string): string {
@@ -229,9 +249,40 @@ export class MarkdownParser {
       result = result.replace(/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/gim, '\n\n<!-- DOCUMENT_TOC_PLACEHOLDER -->\n\n');
     }
 
-    // B. Page Breaks: <!-- pagebreak --> or \pagebreak
-    result = result.replace(/<!--\s*pagebreak\s*-->|\\pagebreak/gi, () => {
-      return '\n\n<div style="page-break-after: always; break-after: page; height: 0; margin: 0; padding: 0;"></div>\n\n';
+    // B. Page Breaks: <!-- pagebreak -->, <!-- newpage -->, <!-- pb -->, \pagebreak, or === line
+    result = result.replace(/<!--\s*(?:pagebreak|newpage|pb)\s*-->|\\pagebreak|^===\s*$/gim, () => {
+      return '\n\n<div class="gdoc-pagebreak" style="page-break-before: always; break-before: page; height: 0; margin: 0; padding: 0;"></div>\n\n';
+    });
+
+    // C. Text Alignment Directives: -> center <- and -> right ->
+    result = result.replace(/^[ \t]*->[ \t]+([^\r\n]+?)[ \t]+<-[ \t]*$/gm, '<p style="text-align: center; margin: 8pt 0;">$1</p>');
+    result = result.replace(/^[ \t]*->[ \t]+([^\r\n]+?)[ \t]+->[ \t]*$/gm, '<p style="text-align: right; margin: 8pt 0;">$1</p>');
+
+    // D. Definition Lists: Term \n : Definition
+    result = result.replace(/^([^\r\n:#`>][^\r\n]*)\r?\n:[ \t]+([^\r\n]+)$/gm, (match, term, def) => {
+      return `<dl style="margin: 8pt 0;"><dt style="font-weight: 700; color: ${this.theme.primary}; font-family: ${this.theme.headingFontFamily}; margin-bottom: 2pt;">${term.trim()}</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: ${this.theme.text}; font-family: ${this.theme.fontFamily};">${def.trim()}</dd></dl>`;
+    });
+
+    // E. Mermaid Diagram Block Transformer
+    result = result.replace(/```mermaid([\s\S]*?)```/gi, (match, diagramCode) => {
+      const trimmed = diagramCode.trim();
+      const lines = trimmed.split('\n').filter((l: string) => l.trim().length > 0);
+      const diagramType = lines[0] ? lines[0].trim().toUpperCase() : 'FLOWCHART';
+
+      // Render as visual diagram card
+      return `
+<table style="width: 100%; border-collapse: collapse; margin: 16pt 0; background-color: #F8FAFC; border: 1.5pt solid ${this.theme.borderDark}; border-radius: 8pt;">
+  <tr>
+    <td style="padding: 8pt 14pt; background-color: #F1F5F9; border-bottom: 1pt solid ${this.theme.border}; font-family: ${this.theme.headingFontFamily}; font-size: 9pt; font-weight: 700; color: ${this.theme.primary};">
+      📊 DIAGRAM: ${this.escapeHtml(diagramType)}
+    </td>
+  </tr>
+  <tr>
+    <td style="padding: 14pt 18pt; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 9.5pt; line-height: 1.6; color: ${this.theme.text}; background-color: #FFFFFF;">
+      <pre style="margin: 0; padding: 0; white-space: pre-wrap; font-family: inherit; font-size: inherit; color: inherit;">${this.escapeHtml(trimmed)}</pre>
+    </td>
+  </tr>
+</table>`;
     });
 
     // C. Footnotes Extraction: [^1]: Footnote description
