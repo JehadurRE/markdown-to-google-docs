@@ -104,7 +104,7 @@
     <h1 id="executive-summary" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="executive-summary"></a>Executive Summary</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">This strategic document outlines our engineering roadmap, cloud architecture milestones, and developer productivity enhancements<sup><a href="#fn-1" name="fnref-1" style="color: #2563EB; font-weight: 700; text-decoration: none; padding: 0 1pt;">[1]</a></sup>. Designed to be converted directly into an executive <strong>Google Docs</strong> report, preserving typographic harmony, table formatting, callouts, and syntax highlighting.</p>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #EFF6FF; border-left: 4.5pt solid #3B82F6; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #EFF6FF; border-left: 4.5pt solid #3B82F6; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #1E40AF; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -120,7 +120,7 @@
 <h1 id="table-of-contents" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="table-of-contents"></a>Table of Contents</h1>
 
 <!-- Table of Contents -->
-<table style="width: 100%; border-collapse: collapse; margin: 18pt 0 26pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 6pt;">
+<table class="doc-toc-container" style="width: 100%; border-collapse: collapse; margin: 18pt 0 26pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 6pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 14pt 18pt;">
       <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 12pt; font-weight: 700; color: #0F172A; margin-bottom: 10pt; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -196,7 +196,7 @@
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
 <div class="gdoc-pagebreak" style="page-break-before: always; break-before: page; height: 0; margin: 0; padding: 0;"></div>
 <h1 id="architecture-pillars" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="architecture-pillars"></a>Architecture Pillars</h1>
-<table style="width: 100%; border-collapse: collapse; margin: 16pt 0; background-color: #F8FAFC; border: 1.5pt solid #CBD5E1; border-radius: 8pt;">
+<table class="gdoc-diagram" style="width: 100%; border-collapse: collapse; margin: 16pt 0; background-color: #F8FAFC; border: 1.5pt solid #CBD5E1; border-radius: 8pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 8pt 14pt; background-color: #F1F5F9; border-bottom: 1pt solid #E2E8F0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 9pt; font-weight: 700; color: #0F172A;">
       📊 DIAGRAM: GRAPH TD
@@ -220,10 +220,10 @@
 <li style="margin-bottom: 3.5pt;"><strong>Resilient Security Posture</strong>: OAuth 2.0 PKCE authentication with encrypted OS-level token caching.</li>
 </ol>
 <h3 id="key-technical-definitions" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13pt; font-weight: 600; color: #2563EB; line-height: 1.4; margin: 16pt 0 6pt 0;"><a name="key-technical-definitions"></a>Key Technical Definitions</h3>
-<dl style="margin: 8pt 0;"><dt style="font-weight: 700; color: #0F172A; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 2pt;">AST Engine</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Abstract Syntax Tree translating Markdown tokens into inline CSS styles.</dd></dl>
-<dl style="margin: 8pt 0;"><dt style="font-weight: 700; color: #0F172A; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 2pt;">Native Bookmarks</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Google Docs named anchors enabling bidirectional Table of Contents jumping.</dd></dl>
+<dl style="margin: 8pt 0; page-break-inside: avoid; break-inside: avoid;"><dt style="font-weight: 700; color: #0F172A; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 2pt;">AST Engine</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Abstract Syntax Tree translating Markdown tokens into inline CSS styles.</dd></dl>
+<dl style="margin: 8pt 0; page-break-inside: avoid; break-inside: avoid;"><dt style="font-weight: 700; color: #0F172A; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 2pt;">Native Bookmarks</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">Google Docs named anchors enabling bidirectional Table of Contents jumping.</dd></dl>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #ECFDF5; border-left: 4.5pt solid #10B981; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #ECFDF5; border-left: 4.5pt solid #10B981; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #065F46; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -239,7 +239,7 @@
 <h1 id="extended-alert-admonitions" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="extended-alert-admonitions"></a>Extended Alert Admonitions</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The converter natively formats 12 distinct callout alert types as Google Docs single-cell tables:</p>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0F9FF; border-left: 4.5pt solid #0284C7; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0F9FF; border-left: 4.5pt solid #0284C7; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #0369A1; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -252,7 +252,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDF4; border-left: 4.5pt solid #16A34A; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDF4; border-left: 4.5pt solid #16A34A; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #15803D; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -265,7 +265,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FAF5FF; border-left: 4.5pt solid #9333EA; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FAF5FF; border-left: 4.5pt solid #9333EA; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #7E22CE; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -278,7 +278,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDFA; border-left: 4.5pt solid #0D9488; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDFA; border-left: 4.5pt solid #0D9488; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #0F766E; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -291,7 +291,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F5F3FF; border-left: 4.5pt solid #7C3AED; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F5F3FF; border-left: 4.5pt solid #7C3AED; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #5B21B6; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -304,7 +304,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FFFBEB; border-left: 4.5pt solid #F59E0B; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FFFBEB; border-left: 4.5pt solid #F59E0B; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #92400E; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -317,7 +317,7 @@
   </tr>
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FEF2F2; border-left: 4.5pt solid #DC2626; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FEF2F2; border-left: 4.5pt solid #DC2626; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #B91C1C; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -341,7 +341,7 @@
 <h1 id="system-benchmark-latency-analysis" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="system-benchmark-latency-analysis"></a>System Benchmark &amp; Latency Analysis</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The following table summarizes response times and throughput under peak load:</p>
 
-<table style="width: 100%; border-collapse: collapse; margin: 16pt 0; border: 1pt solid #E2E8F0; border-radius: 4pt; overflow: hidden;">
+<table class="gdoc-table" style="width: 100%; border-collapse: collapse; margin: 16pt 0; border: 1pt solid #E2E8F0; border-radius: 4pt; overflow: hidden; page-break-inside: avoid; break-inside: avoid;">
   
 <thead style="background-color: #1E293B;">
 <tr>
@@ -390,7 +390,7 @@
 
 </table>
 
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F5F3FF; border-left: 4.5pt solid #8B5CF6; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F5F3FF; border-left: 4.5pt solid #8B5CF6; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: #5B21B6; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
@@ -406,7 +406,7 @@
 <h1 id="implementation-code" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="implementation-code"></a>Implementation Code</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">Below is the core implementation for multipart file streaming to the Google Drive API:</p>
 
-<table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt;">
+<table class="gdoc-code-block" style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="float: right; font-size: 7.5pt; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; text-transform: uppercase; color: #64748B; background-color: #E2E8F0; padding: 1.5pt 5pt; border-radius: 3pt; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6pt;">TYPESCRIPT</div>
@@ -429,7 +429,7 @@
 </table>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">And in Python for automated report generation:</p>
 
-<table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt;">
+<table class="gdoc-code-block" style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="float: right; font-size: 7.5pt; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; text-transform: uppercase; color: #64748B; background-color: #E2E8F0; padding: 1.5pt 5pt; border-radius: 3pt; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6pt;">PYTHON</div>
@@ -452,7 +452,7 @@
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
 <h1 id="mathematical-calculations" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="mathematical-calculations"></a>Mathematical Calculations</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">Mass-energy equivalence is computed via <span style="font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 11pt; font-style: italic; color: #0F172A; padding: 0 2pt;">E = mc^2</span>, and the standard quadratic optimization function is expressed as:</p>
-<div style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A;"><em>x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}</em></div>
+<div class="math-block" style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A; page-break-inside: avoid; break-inside: avoid;"><em>x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}</em></div>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
 <h1 id="action-checklist" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="action-checklist"></a>Action Checklist</h1>
 <ul style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 6pt 0 10pt 0; padding-left: 20pt;">

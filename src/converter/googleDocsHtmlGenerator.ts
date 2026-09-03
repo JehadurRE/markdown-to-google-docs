@@ -275,7 +275,7 @@ export class GoogleDocsHtmlGenerator {
 
     return `
 <!-- Table of Contents -->
-<table style="width: 100%; border-collapse: collapse; margin: 18pt 0 26pt 0; background-color: ${this.theme.bgCard}; border: 1pt solid ${this.theme.border}; border-radius: 6pt;">
+<table class="doc-toc-container" style="width: 100%; border-collapse: collapse; margin: 18pt 0 26pt 0; background-color: ${this.theme.bgCard}; border: 1pt solid ${this.theme.border}; border-radius: 6pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 14pt 18pt;">
       <div style="font-family: ${this.theme.headingFontFamily}; font-size: 12pt; font-weight: 700; color: ${this.theme.primary}; margin-bottom: 10pt; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -362,7 +362,7 @@ export class GoogleDocsHtmlGenerator {
     // 3. Blockquotes
     output = output.replace(/<blockquote>([\s\S]*?)<\/blockquote>/gi, (match, content) => {
       return `
-<table style="width: 100%; border-collapse: collapse; margin: 12pt 0; border: none; background-color: ${this.theme.bgCard}; border-left: 3.5pt solid ${this.theme.accent};">
+<table class="gdoc-blockquote" style="width: 100%; border-collapse: collapse; margin: 12pt 0; border: none; background-color: ${this.theme.bgCard}; border-left: 3.5pt solid ${this.theme.accent}; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 8pt 14pt; font-style: italic; color: ${this.theme.text}; font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.5;">
       ${content.trim()}
@@ -387,7 +387,7 @@ export class GoogleDocsHtmlGenerator {
         : '';
 
       return `
-<table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: ${this.theme.codeBg}; border: 1pt solid ${this.theme.codeBorder}; border-radius: 4pt;">
+<table class="gdoc-code-block" style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: ${this.theme.codeBg}; border: 1pt solid ${this.theme.codeBorder}; border-radius: 4pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       ${langBadge}
@@ -473,7 +473,7 @@ export class GoogleDocsHtmlGenerator {
       });
 
       return `
-<table style="width: 100%; border-collapse: collapse; margin: 16pt 0; border: 1pt solid ${this.theme.border}; border-radius: 4pt; overflow: hidden;">
+<table class="gdoc-table" style="width: 100%; border-collapse: collapse; margin: 16pt 0; border: 1pt solid ${this.theme.border}; border-radius: 4pt; overflow: hidden; page-break-inside: avoid; break-inside: avoid;">
   ${styledTable}
 </table>`;
     });

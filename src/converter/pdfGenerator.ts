@@ -101,52 +101,77 @@ export class PdfGenerator {
     const htmlGen = new GoogleDocsHtmlGenerator(this.options);
     const result = htmlGen.convert(markdownContent);
 
-    // Create print-optimized standalone HTML
+    // Create print-optimized standalone HTML with table-based repeating header/footer
     const paperSize = this.options.paperFormat || 'Letter';
     const orientation = this.options.landscape ? 'landscape' : 'portrait';
 
-    const printHtml = result.html.replace('</head>', `
+    const headerText = result.frontmatter.header || (this.options.headerText as string) || '';
+    const footerText = result.frontmatter.footer || (this.options.footerText as string) || (result.frontmatter.page_numbers !== false ? 'Confidential' : '');
+    const docTitle = result.frontmatter.title || 'Document';
+
+    const theadHtml = headerText ? `
+    <thead>
+      <tr>
+        <td style="border: none; padding: 0 0 10pt 0; height: 14mm; vertical-align: top;">
+          <div style="display: flex; justify-content: space-between; font-size: 8.5pt; color: #64748B; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+            <span>${this.escapeHtml(headerText)}</span>
+            <span>${this.escapeHtml(docTitle)}</span>
+          </div>
+        </td>
+      </tr>
+    </thead>` : '';
+
+    const tfootHtml = footerText ? `
+    <tfoot>
+      <tr>
+        <td style="border: none; padding: 10pt 0 0 0; height: 12mm; vertical-align: bottom;">
+          <div style="display: flex; justify-content: space-between; font-size: 8.5pt; color: #64748B; border-top: 1px solid #CBD5E1; padding-top: 4px; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+            <span>${this.escapeHtml(footerText)}</span>
+            <span>${this.escapeHtml(docTitle)}</span>
+          </div>
+        </td>
+      </tr>
+    </tfoot>` : '';
+
+    // Remove static running header/footer divs from body so they don't duplicate
+    let cleanHtml = result.html;
+    cleanHtml = cleanHtml.replace(/<div class="doc-running-header"[\s\S]*?<\/div>/i, '');
+    cleanHtml = cleanHtml.replace(/<div class="doc-running-footer"[\s\S]*?<\/div>/i, '');
+
+    // Inject table wrapper around the content inside .page-container
+    cleanHtml = cleanHtml.replace('<div class="page-container">', `<div class="page-container">
+  <table style="width: 100%; border-collapse: collapse; border: none;">
+    ${theadHtml}
+    <tbody>
+      <tr>
+        <td style="border: none; padding: 0; vertical-align: top;">`);
+
+    cleanHtml = cleanHtml.replace('</div>\n</body>', `        </td>
+      </tr>
+    </tbody>
+    ${tfootHtml}
+  </table>
+</div>
+</body>`);
+
+    const printHtml = cleanHtml.replace('</head>', `
   <style>
     @page {
       size: ${paperSize} ${orientation};
-      margin: 18mm 16mm;
+      margin: 14mm 16mm;
     }
     @media print {
       body {
-        background-color: transparent !important;
+        background: transparent !important;
         margin: 0 !important;
         padding: 0 !important;
       }
       .page-container {
-        max-width: 100% !important;
         margin: 0 !important;
-        padding: 14mm 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
         box-shadow: none !important;
         border-radius: 0 !important;
-      }
-      .doc-running-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        border-bottom: 1px solid #CBD5E1 !important;
-        padding-bottom: 4px !important;
-        font-size: 8.5pt !important;
-        color: #64748B !important;
-      }
-      .doc-running-footer {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        border-top: 1px solid #CBD5E1 !important;
-        padding-top: 4px !important;
-        font-size: 8.5pt !important;
-        color: #64748B !important;
       }
       .gdoc-pagebreak {
         page-break-before: always !important;
@@ -158,6 +183,14 @@ export class PdfGenerator {
       }
       .gdoc-pagebreak::after {
         display: none !important;
+      }
+      table.doc-toc-container, table.gdoc-callout, table.gdoc-diagram, table.gdoc-code-block, table.gdoc-blockquote, table.gdoc-table, .math-block, pre, blockquote, dl {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
       a {
         text-decoration: none !important;
@@ -202,5 +235,14 @@ export class PdfGenerator {
         }
       } catch (_) {}
     }
+  }
+
+  private escapeHtml(str: string): string {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 }

@@ -264,7 +264,7 @@ export class MarkdownParser {
 
     // D. Definition Lists: Term \n : Definition
     result = result.replace(/^([^\r\n:#`>][^\r\n]*)\r?\n:[ \t]+([^\r\n]+)$/gm, (match, term, def) => {
-      return `<dl style="margin: 8pt 0;"><dt style="font-weight: 700; color: ${this.theme.primary}; font-family: ${this.theme.headingFontFamily}; margin-bottom: 2pt;">${term.trim()}</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: ${this.theme.text}; font-family: ${this.theme.fontFamily};">${def.trim()}</dd></dl>`;
+      return `<dl style="margin: 8pt 0; page-break-inside: avoid; break-inside: avoid;"><dt style="font-weight: 700; color: ${this.theme.primary}; font-family: ${this.theme.headingFontFamily}; margin-bottom: 2pt;">${term.trim()}</dt><dd style="margin-left: 20pt; margin-bottom: 8pt; color: ${this.theme.text}; font-family: ${this.theme.fontFamily};">${def.trim()}</dd></dl>`;
     });
 
     // E. Mermaid Diagram Block Transformer
@@ -275,7 +275,7 @@ export class MarkdownParser {
 
       // Render as visual diagram card
       return `
-<table style="width: 100%; border-collapse: collapse; margin: 16pt 0; background-color: #F8FAFC; border: 1.5pt solid ${this.theme.borderDark}; border-radius: 8pt;">
+<table class="gdoc-diagram" style="width: 100%; border-collapse: collapse; margin: 16pt 0; background-color: #F8FAFC; border: 1.5pt solid ${this.theme.borderDark}; border-radius: 8pt; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 8pt 14pt; background-color: #F1F5F9; border-bottom: 1pt solid ${this.theme.border}; font-family: ${this.theme.headingFontFamily}; font-size: 9pt; font-weight: 700; color: ${this.theme.primary};">
       📊 DIAGRAM: ${this.escapeHtml(diagramType)}
@@ -357,7 +357,7 @@ export class MarkdownParser {
     // K. Math blocks: $$ equation $$
     result = result.replace(/\$\$([\s\S]*?)\$\$/g, (match, equation) => {
       const trimmed = equation.trim();
-      return `\n<div style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A;"><em>${this.escapeHtml(trimmed)}</em></div>\n`;
+      return `\n<div class="math-block" style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A; page-break-inside: avoid; break-inside: avoid;"><em>${this.escapeHtml(trimmed)}</em></div>\n`;
     });
 
     // Inline math: $equation$
@@ -469,7 +469,7 @@ export class MarkdownParser {
       }
 
       return `
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: ${calloutStyle.bg}; border-left: 4.5pt solid ${calloutStyle.border}; border-radius: 0 6pt 6pt 0;">
+<table class="gdoc-callout" style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: ${calloutStyle.bg}; border-left: 4.5pt solid ${calloutStyle.border}; border-radius: 0 6pt 6pt 0; page-break-inside: avoid; break-inside: avoid;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
       <div style="font-weight: 700; font-size: 11pt; color: ${calloutStyle.text}; font-family: ${this.theme.headingFontFamily}; margin-bottom: 4pt;">
