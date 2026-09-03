@@ -3,7 +3,7 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ConverterOptions, FrontmatterData, ThemeColors, TocItem } from './types';
+import { ConverterOptions, FootnoteItem, FrontmatterData, ThemeColors, TocItem } from './types';
 import { getTheme } from './themes';
 
 // Syntax highlighting inline style mappings
@@ -81,6 +81,8 @@ export class MarkdownParser {
   private theme: ThemeColors;
   private options: ConverterOptions;
   private toc: TocItem[] = [];
+  private footnotes: FootnoteItem[] = [];
+  private hasManualToc = false;
 
   constructor(options: ConverterOptions = {}) {
     this.options = options;
@@ -95,9 +97,10 @@ export class MarkdownParser {
       typographer: true,
       highlight: (str: string, lang: string): string => {
         let highlighted = '';
-        if (lang && hljs.getLanguage(lang)) {
+        const cleanLang = (lang || '').trim().toLowerCase();
+        if (cleanLang && hljs.getLanguage(cleanLang)) {
           try {
-            highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+            highlighted = hljs.highlight(str, { language: cleanLang, ignoreIllegals: true }).value;
           } catch (__) {
             highlighted = this.md.utils.escapeHtml(str);
           }
@@ -132,10 +135,11 @@ export class MarkdownParser {
   }
 
   private configureCustomRules(): void {
-    // Custom heading rule to extract TOC items and inject clean anchors
+    // Custom heading rule to extract TOC items, ensure unique slugs, and inject bookmark anchors
     this.md.core.ruler.push('extract_toc', (state) => {
       this.toc = [];
       const tokens = state.tokens;
+      const slugCounts = new Map<string, number>();
 
       for (let i = 0; i < tokens.length; i++) {
         if (tokens[i].type === 'heading_open') {
@@ -143,12 +147,29 @@ export class MarkdownParser {
           const inlineToken = tokens[i + 1];
           if (inlineToken && inlineToken.type === 'inline') {
             const title = inlineToken.content;
-            const slug = title
+            let baseSlug = title
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, '-')
               .replace(/^-+|-+$/g, '');
 
+            if (!baseSlug) baseSlug = 'section';
+
+            let slug = baseSlug;
+            const count = slugCounts.get(baseSlug) || 0;
+            if (count > 0) {
+              slug = `${baseSlug}-${count}`;
+            }
+            slugCounts.set(baseSlug, count + 1);
+
             tokens[i].attrSet('id', slug);
+
+            // Inject <a name="slug"></a> anchor so Google Docs creates native bookmarks
+            // Google Docs ignores <h1 id="..."> for internal linking!
+            inlineToken.children = inlineToken.children || [];
+            const anchorToken = new state.Token('html_inline', '', 0);
+            anchorToken.content = `<a name="${slug}"></a>`;
+            inlineToken.children.unshift(anchorToken);
+
             this.toc.push({ level, text: title, slug });
           }
         }
@@ -162,7 +183,12 @@ export class MarkdownParser {
     bodyMarkdown: string;
     parsedHtml: string;
     toc: TocItem[];
+    footnotes: FootnoteItem[];
+    hasManualToc: boolean;
   } {
+    this.footnotes = [];
+    this.hasManualToc = false;
+
     // 1. Extract Frontmatter using gray-matter
     let frontmatter: FrontmatterData = {};
     let content = markdownInput;
@@ -172,62 +198,132 @@ export class MarkdownParser {
       frontmatter = parsed.data || {};
       content = parsed.content;
     } catch (e) {
-      // Fallback if frontmatter has invalid YAML
       content = markdownInput;
     }
 
-    // 2. Preprocess custom Markdown syntax (Alerts, Task lists, Math, Page breaks, Local images)
+    // 2. Preprocess custom Markdown syntax
     content = this.preprocessMarkdown(content);
 
     // 3. Render Markdown to HTML
     let html = this.md.render(content);
 
-    // 4. Post-process HTML (Apply Google Docs specific table/blockquote/callout inline formatting)
+    // 4. Post-process HTML
     html = this.postprocessHtml(html);
 
     return {
       frontmatter,
       bodyMarkdown: content,
       parsedHtml: html,
-      toc: this.toc
+      toc: this.toc,
+      footnotes: this.footnotes,
+      hasManualToc: this.hasManualToc
     };
   }
 
   private preprocessMarkdown(markdown: string): string {
     let result = markdown;
 
-    // A. Page Breaks: <!-- pagebreak --> or \pagebreak
+    // A. Manual Table of Contents tag ([TOC], [[toc]], [toc])
+    if (/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/im.test(result)) {
+      this.hasManualToc = true;
+      result = result.replace(/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/gim, '\n\n<!-- DOCUMENT_TOC_PLACEHOLDER -->\n\n');
+    }
+
+    // B. Page Breaks: <!-- pagebreak --> or \pagebreak
     result = result.replace(/<!--\s*pagebreak\s*-->|\\pagebreak/gi, () => {
       return '\n\n<div style="page-break-after: always; break-after: page; height: 0; margin: 0; padding: 0;"></div>\n\n';
     });
 
-    // B. GitHub / Obsidian style callouts (> [!NOTE], > [!TIP], etc.)
-    // We convert these into semantic custom markers that survive Markdown parsing
+    // C. Footnotes Extraction: [^1]: Footnote description
+    const footnoteDefRegex = /^\[\^([^\]]+)\]:\s*([\s\S]*?)(?=(?:\n\[\^|\n\n\S|$))/gm;
+    result = result.replace(footnoteDefRegex, (match, id, text) => {
+      const cleanId = id.trim();
+      const cleanText = text.trim();
+      this.footnotes.push({
+        id: cleanId,
+        label: cleanId,
+        content: cleanText
+      });
+      return '';
+    });
+
+    // Inline Footnote references: [^1]
+    result = result.replace(/\[\^([^\]]+)\]/g, (match, id) => {
+      const cleanId = id.trim();
+      return `<sup><a href="#fn-${cleanId}" name="fnref-${cleanId}" style="color: ${this.theme.secondary}; font-weight: 700; text-decoration: none; padding: 0 1pt;">[${cleanId}]</a></sup>`;
+    });
+
+    // D. Extended Callout / Admonition syntax
+    // Supports: NOTE, TIP, IMPORTANT, WARNING, CAUTION, INFO, SUCCESS, DONE, DANGER, FAIL, ERROR, QUESTION, FAQ, HELP, QUOTE, CITE, TODO, EXAMPLE
     result = result.replace(
-      /^>[^\S\r\n]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:[^\S\r\n]+([^\r\n]*))?$/gim,
+      /^>[^\S\r\n]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|INFO|SUCCESS|DONE|DANGER|FAIL|ERROR|QUESTION|FAQ|HELP|QUOTE|CITE|TODO|EXAMPLE)\](?:[^\S\r\n]+([^\r\n]*))?$/gim,
       (match, type, title) => {
-        const cleanType = type.toLowerCase();
+        let cleanType = type.toLowerCase();
+        // Normalize aliases
+        if (cleanType === 'done') cleanType = 'success';
+        if (cleanType === 'fail' || cleanType === 'error') cleanType = 'danger';
+        if (cleanType === 'faq' || cleanType === 'help') cleanType = 'question';
+        if (cleanType === 'cite') cleanType = 'quote';
+
         const customTitle = title && title.trim().length > 0 ? title.trim() : '';
         return `> [[CALLOUT:${cleanType}:${customTitle}]]`;
       }
     );
 
-    // C. Task Lists (- [ ] or - [x])
+    // E. Task Lists (- [ ] or - [x])
     result = result.replace(/^(\s*[-*+]\s+)\[ \]\s+(.*)$/gm, '$1☐ $2');
     result = result.replace(/^(\s*[-*+]\s+)\[x\]\s+(.*)$/gim, '$1☑ ~~$2~~');
 
-    // D. Math blocks: $$ equation $$
+    // F. Highlighted text: ==highlighted==
+    result = result.replace(/==([^=\n\r]+)==/g, (match, text) => {
+      return `<mark style="background-color: #FEF08A; color: #713F12; padding: 1.5pt 4pt; border-radius: 2pt;">${text}</mark>`;
+    });
+
+    // G. Subscript: ~H2O~ -> H<sub>2</sub>O
+    result = result.replace(/(?<!~)\~([^~\n\r\s]+)\~(?!~)/g, (match, text) => {
+      return `<sub style="font-size: 75%; line-height: 0; vertical-align: sub;">${text}</sub>`;
+    });
+
+    // H. Superscript: ^2^ -> <sup>2</sup> (excluding footnotes [^...])
+    result = result.replace(/(?<!\[)\^([^\^\n\r\s]+)\^/g, (match, text) => {
+      return `<sup style="font-size: 75%; line-height: 0; vertical-align: super;">${text}</sup>`;
+    });
+
+    // I. Inserted text: ++text++
+    result = result.replace(/\+\+([^\+\n\r]+)\+\+/g, (match, text) => {
+      return `<ins style="text-decoration: underline; background-color: #DCFCE7; padding: 1pt 2pt;">${text}</ins>`;
+    });
+
+    // J. Keyboard keys: <kbd>Ctrl</kbd>
+    result = result.replace(/<kbd>([^<]+)<\/kbd>/gi, (match, key) => {
+      return `<kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">${key}</kbd>`;
+    });
+
+    // K. Math blocks: $$ equation $$
     result = result.replace(/\$\$([\s\S]*?)\$\$/g, (match, equation) => {
       const trimmed = equation.trim();
       return `\n<div style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A;"><em>${this.escapeHtml(trimmed)}</em></div>\n`;
     });
 
-    // E. Inline math: $equation$ (ensuring not currency like $100)
-    result = result.replace(/(^|[^\\])\$([^\$\n]+?)\$/g, (match, prefix, equation) => {
+    // Inline math: $equation$
+    result = result.replace(/(^|[^\\])\$([^\$\n\r]+?)\$/g, (match, prefix, equation) => {
       return `${prefix}<span style="font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 11pt; font-style: italic; color: #0F172A; padding: 0 2pt;">${this.escapeHtml(equation.trim())}</span>`;
     });
 
-    // F. Resolve Local Relative Images to Base64 Data URIs
+    // L. Image sizing: ![alt](url =300x200) or ![alt|300](url)
+    result = result.replace(/!\[(.*?)\]\((.+?)\s+=(\d+(?:%|px)?)(?:x(\d+(?:%|px)?))?\)/g, (match, alt, url, width, height) => {
+      const w = width.endsWith('%') || width.endsWith('px') ? width : `${width}px`;
+      const h = height ? (height.endsWith('%') || height.endsWith('px') ? height : `${height}px`) : 'auto';
+      return `<img src="${url.trim()}" alt="${alt}" style="width: ${w}; height: ${h}; max-width: 100%; border-radius: 4pt;" />`;
+    });
+
+    result = result.replace(/!\[(.*?)\|(\d+(?:%|px)?)(?:x(\d+(?:%|px)?))?\]\((.+?)\)/g, (match, alt, width, height, url) => {
+      const w = width.endsWith('%') || width.endsWith('px') ? width : `${width}px`;
+      const h = height ? (height.endsWith('%') || height.endsWith('px') ? height : `${height}px`) : 'auto';
+      return `<img src="${url.trim()}" alt="${alt}" style="width: ${w}; height: ${h}; max-width: 100%; border-radius: 4pt;" />`;
+    });
+
+    // M. Resolve Local Relative Images to Base64 Data URIs
     if (this.options.baseDir) {
       result = this.resolveLocalImages(result, this.options.baseDir);
     }
@@ -237,18 +333,14 @@ export class MarkdownParser {
 
   private resolveLocalImages(markdown: string, baseDir: string): string {
     // Matches ![alt](path "title") or <img src="path" />
-    return markdown.replace(/!\[(.*?)\]\((.+?)(?:\s+"(.*?)")?\)/g, (match, alt, imgPath, title) => {
+    let res = markdown.replace(/!\[(.*?)\]\((.+?)(?:\s+"(.*?)")?\)/g, (match, alt, imgPath, title) => {
       const cleanPath = imgPath.trim();
-      // If already data URI or web URL, keep as is
       if (cleanPath.startsWith('data:') || cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
         return match;
       }
 
       try {
-        const resolvedPath = path.isAbsolute(cleanPath)
-          ? cleanPath
-          : path.join(baseDir, cleanPath);
-
+        const resolvedPath = path.isAbsolute(cleanPath) ? cleanPath : path.join(baseDir, cleanPath);
         if (fs.existsSync(resolvedPath)) {
           const ext = path.extname(resolvedPath).toLowerCase().replace('.', '');
           const mimeType = ext === 'svg' ? 'image/svg+xml' : ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
@@ -259,28 +351,57 @@ export class MarkdownParser {
           return `![${alt}](${dataUri}${titleAttr})`;
         }
       } catch (err) {
-        // Fallback: keep original if error reading file
+        // Fallback
       }
-
       return match;
     });
+
+    // Also check <img src="local" />
+    res = res.replace(/<img\s+([^>]*?)src="([^"]+)"([^>]*?)\/?>/gi, (match, before, src, after) => {
+      const cleanPath = src.trim();
+      if (cleanPath.startsWith('data:') || cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+        return match;
+      }
+      try {
+        const resolvedPath = path.isAbsolute(cleanPath) ? cleanPath : path.join(baseDir, cleanPath);
+        if (fs.existsSync(resolvedPath)) {
+          const ext = path.extname(resolvedPath).toLowerCase().replace('.', '');
+          const mimeType = ext === 'svg' ? 'image/svg+xml' : ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+          const fileData = fs.readFileSync(resolvedPath);
+          const base64 = fileData.toString('base64');
+          const dataUri = `data:${mimeType};base64,${base64}`;
+          return `<img ${before}src="${dataUri}"${after} />`;
+        }
+      } catch (err) {
+        // Fallback
+      }
+      return match;
+    });
+
+    return res;
   }
 
   private postprocessHtml(html: string): string {
     let output = html;
 
     // Convert [[CALLOUT:type:title]] inside blockquotes into Google Docs 1x1 table
-    // Google Docs preserves table cell background colors and borders flawlessly!
-    const calloutRegex = /<blockquote>\s*<p>\s*\[\[CALLOUT:(note|tip|important|warning|caution):(.*?)\]\]([\s\S]*?)<\/blockquote>/gi;
+    const calloutRegex = /<blockquote>\s*<p>\s*\[\[CALLOUT:([a-z]+):(.*?)\]\]([\s\S]*?)<\/blockquote>/gi;
     output = output.replace(calloutRegex, (match, type, customTitle, innerContent) => {
-      const calloutType = type.toLowerCase() as keyof typeof this.theme.callouts;
+      const calloutType = type.toLowerCase();
       const calloutStyle = this.theme.callouts[calloutType] || this.theme.callouts.note;
       const defaultTitles: Record<string, string> = {
         note: 'Note',
         tip: 'Tip',
         important: 'Important',
         warning: 'Warning',
-        caution: 'Caution'
+        caution: 'Caution',
+        info: 'Information',
+        success: 'Success',
+        danger: 'Danger',
+        question: 'Question',
+        quote: 'Quote',
+        todo: 'To-Do',
+        example: 'Example'
       };
 
       const title = customTitle.trim() || defaultTitles[calloutType] || 'Note';
@@ -292,7 +413,6 @@ export class MarkdownParser {
         cleanContent = `<p style="margin: 0; font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.5; color: ${this.theme.text};">${cleanContent}</p>`;
       }
 
-      // Single cell table formatted for Google Docs
       return `
 <table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: ${calloutStyle.bg}; border-left: 4.5pt solid ${calloutStyle.border}; border-radius: 0 6pt 6pt 0;">
   <tr>
@@ -303,6 +423,27 @@ export class MarkdownParser {
       <div style="font-size: 10.5pt; line-height: 1.5; color: ${this.theme.text}; font-family: ${this.theme.fontFamily};">
         ${cleanContent}
       </div>
+    </td>
+  </tr>
+</table>`;
+    });
+
+    // Details / Summary conversion to styled Google Docs container
+    output = output.replace(/<details>([\s\S]*?)<\/details>/gi, (match, inner) => {
+      const summaryMatch = inner.match(/<summary>([\s\S]*?)<\/summary>/i);
+      const summaryText = summaryMatch ? summaryMatch[1].trim() : 'Details';
+      const bodyText = inner.replace(/<summary>[\s\S]*?<\/summary>/i, '').trim();
+
+      return `
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; background-color: #F8FAFC; border: 1pt solid #CBD5E1; border-radius: 6pt;">
+  <tr>
+    <td style="padding: 10pt 14pt; background-color: #F1F5F9; border-bottom: 1pt solid #CBD5E1; font-weight: 600; font-family: ${this.theme.headingFontFamily}; font-size: 10.5pt; color: ${this.theme.primary};">
+      <span style="margin-right: 6pt; color: ${this.theme.secondary};">▼</span>${summaryText}
+    </td>
+  </tr>
+  <tr>
+    <td style="padding: 12pt 14pt; font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.5; color: ${this.theme.text};">
+      ${bodyText}
     </td>
   </tr>
 </table>`;

@@ -11,23 +11,23 @@
 ## ✨ Features
 
 - **🚀 Zero-Configuration 1-Click Clipboard Copy**: Run **"Copy for Google Docs"** (`Ctrl+Shift+P` -> `Copy for Google Docs`), then press `Ctrl+V` (or `Cmd+V`) inside any Google Doc. All typography, headings, tables, callout boxes, and code blocks paste with 100% fidelity!
-- **☁️ Direct Google Drive Cloud Sync**: Authenticate with Google and upload markdown files directly as native Google Docs (`application/vnd.google-apps.document`) with a single click.
-- **🎨 5 Curated Professional Themes**:
+- **🔗 Native Google Docs Bookmark Linking**: Injects `<a name="slug"></a>` into all headings so Table of Contents and cross-references (`[Section](#heading)`) become real, clickable **Google Docs Bookmarks**!
+- **📑 Author-Defined `[TOC]` Placement & Depth Control**: Place `[TOC]`, `[[toc]]`, or `[toc]` anywhere in your markdown file to position your Table of Contents precisely where you want it. Configure `toc_depth: 2..6` per document.
+- **📚 Footnotes with Return Links**: Supports `[^1]` inline citations and `[^1]: text` definitions, creating superscript references and a formatted bottom Footnotes section with return links (`↩`).
+- **🎨 6 Curated Professional Themes**:
   - **Modern Corporate (Default)**: Clean tech slate & vibrant indigo aesthetic.
   - **Executive Navy**: Prestigious navy & gold accents for formal business reports and proposals.
   - **Emerald Mint**: Fresh forest green & mint for sustainability, health, and modern tech.
   - **Crimson Elegant**: Deep burgundy & rose for academic, legal, and editorial publications.
   - **Minimalist Monochrome**: Timeless Swiss-style high-contrast typography.
   - **Tech Violet**: Vibrant developer documentation aesthetic with dark code blocks.
-- **👁️ Live Side-by-Side Preview**: Interactive Webview panel simulating the exact Google Docs page layout with a toolbar to switch themes, copy, upload, and export.
-- **🛡️ Industrial-Standard Edge Case Handling**:
-  - **Inline Code Syntax Highlighting**: Translates `highlight.js` tokens into inline CSS styles so syntax colors survive Google Docs clipboard paste and Drive conversion.
-  - **Executive Header Cards**: Converts YAML frontmatter (`title`, `subtitle`, `author`, `date`, `version`, `tags`) into an executive title card instead of raw text.
-  - **GitHub / Obsidian Callouts**: Transforms `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` into single-cell Google Docs-compatible callout tables with colored left borders and tinted backgrounds.
-  - **Zebra-Striped Tables**: Styled with explicit cell padding, alignments (left/center/right), and alternating row shading.
-  - **Task Lists**: `- [ ]` and `- [x]` rendered as clean ballot checkboxes (`☐`, `☑`) with completed strikethrough.
-  - **Local Relative Images**: Inlines local images (`./images/chart.png`) as base64 data URIs so they paste and upload without broken links.
-  - **Mathematical Equations**: Clean rendering of inline `$E = mc^2$` and block equations.
+- **🏷️ Extended Alert Admonitions (12 Types)**: Transforms `[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`, `[!INFO]`, `[!SUCCESS]`, `[!DANGER]`, `[!QUESTION]`, `[!QUOTE]`, `[!TODO]`, and `[!EXAMPLE]` into single-cell Google Docs tables with colored borders and tinted backgrounds.
+- **✍️ Rich Typography Extensions**: Highlights (`==text==`), Subscript (`H~2~O`), Superscript (`2^32^`), Inserted text (`++text++`), and Keyboard keys (`<kbd>Ctrl</kbd> + <kbd>C</kbd>`).
+- **💻 Code Blocks with Floating Language Badges**: Displays a clean language pill (e.g. `TYPESCRIPT`, `PYTHON`, `SQL`) with inline syntax highlighting that survives clipboard paste.
+- **⚙️ Per-Document YAML Frontmatter Overrides**: Control `theme`, `toc`, `toc_depth`, `zebra_stripes`, `code_theme`, and `font` directly inside individual markdown files.
+- **🖼️ Image Dimension Sizing**: Supports `![alt](url =300x200)` and `![alt|300](url)` with centered captions.
+- **👁️ Live Side-by-Side Preview**: Interactive Webview panel with smooth anchor scrolling simulating the exact Google Docs page layout with a toolbar to switch themes, copy, upload, and export.
+- **☁️ Direct Google Drive Cloud Sync**: Authenticate with Google and upload markdown files directly as native Google Docs (`application/vnd.google-apps.document`) with a single click.
 - **💾 Local Formats**: Export directly to Google Docs-optimized `.html` or native `.docx`.
 
 ---

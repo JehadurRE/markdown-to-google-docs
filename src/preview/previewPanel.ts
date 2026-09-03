@@ -272,6 +272,22 @@ export class GoogleDocsPreviewPanel {
     function exportDocx() {
       vscode.postMessage({ command: 'exportDocx' });
     }
+
+    // Smooth scroll for internal TOC and footnote bookmark links
+    document.addEventListener('click', (e) => {
+      const anchor = e.target.closest('a');
+      if (anchor) {
+        const href = anchor.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          const targetId = href.substring(1);
+          const targetElem = document.getElementById(targetId) || document.querySelector('[name="' + targetId + '"]');
+          if (targetElem) {
+            targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }
+    });
   </script>
 </body>
 </html>`;

@@ -7,6 +7,9 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
     
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -22,7 +25,7 @@
       padding: 54px 64px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
       border-radius: 4px;
-      min-height: 1056px; /* US Letter ratio */
+      min-height: 1056px;
     }
     @media print {
       body { background: transparent; }
@@ -39,6 +42,7 @@
   <div class="page-container">
     <!-- Google Docs Compatible Formatted Document -->
 <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; background-color: #FFFFFF; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
+  <a name="top"></a>
   
 <!-- Executive Title & Metadata Header -->
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 24pt; border: none; border-bottom: 2pt solid #0F172A; padding-bottom: 12pt;">
@@ -47,14 +51,33 @@
       <h1 style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 26pt; font-weight: 800; color: #0F172A; line-height: 1.25; margin: 0 0 8pt 0; letter-spacing: -0.5px;">
         Quarterly Engineering &amp; Architecture Strategy
       </h1>
-      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13pt; color: #64748B; line-height: 1.4; margin-bottom: 12pt; font-weight: 400;">High-Performance Cloud Infrastructure &amp; Developer Productivity</div>
-      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6;"><span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; color: #64748B; font-size: 9.5pt;"><strong>Author:</strong> Jehadur RE</span><span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; color: #64748B; font-size: 9.5pt;"><strong>Date:</strong> 2026-09-03</span><span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; background-color: #EEF2F6; color: #2563EB; padding: 2pt 8pt; border-radius: 12px; font-weight: 600; font-size: 9pt;">v2.4</span><span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; background-color: #FEF3C7; color: #92400E; padding: 2pt 8pt; border-radius: 12px; font-weight: 600; font-size: 9pt; text-transform: uppercase;">APPROVED</span></div>
-      <div style="margin-top: 6pt;"><span style="display: inline-block; margin-right: 6pt; margin-bottom: 4pt; background-color: #F1F5F9; color: #64748B; padding: 2pt 7pt; border-radius: 4pt; font-size: 8.5pt;">#architecture</span><span style="display: inline-block; margin-right: 6pt; margin-bottom: 4pt; background-color: #F1F5F9; color: #64748B; padding: 2pt 7pt; border-radius: 4pt; font-size: 8.5pt;">#cloud</span><span style="display: inline-block; margin-right: 6pt; margin-bottom: 4pt; background-color: #F1F5F9; color: #64748B; padding: 2pt 7pt; border-radius: 4pt; font-size: 8.5pt;">#performance</span><span style="display: inline-block; margin-right: 6pt; margin-bottom: 4pt; background-color: #F1F5F9; color: #64748B; padding: 2pt 7pt; border-radius: 4pt; font-size: 8.5pt;">#google-docs</span></div>
+      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13pt; color: #64748B; line-height: 1.4; margin-bottom: 12pt; font-weight: 400;">High-Performance Cloud Infrastructure, Developer Productivity &amp; Documentation Standard</div>
+      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6;"><span style="margin-right: 14pt; color: #64748B; font-size: 9.5pt;"><strong style="color: #0F172A; font-weight: 600;">Author:</strong> Jehadur RE</span><span style="margin-right: 14pt; color: #64748B; font-size: 9.5pt;"><strong style="color: #0F172A; font-weight: 600;">Date:</strong> 2026-09-03</span><span style="margin-right: 14pt; color: #64748B; font-size: 9.5pt;"><strong style="color: #0F172A; font-weight: 600;">Version:</strong> <span style="background-color: #EEF2F6; color: #0F172A; padding: 1.5pt 5.5pt; border-radius: 3pt; font-weight: 600; font-size: 8.5pt;">v2.5</span></span><span style="margin-right: 14pt; color: #64748B; font-size: 9.5pt;"><strong style="color: #0F172A; font-weight: 600;">Status:</strong> <span style="background-color: #DEF7EC; color: #03543F; padding: 1.5pt 5.5pt; border-radius: 3pt; font-weight: 600; font-size: 8.5pt; text-transform: uppercase;">APPROVED</span></span></div>
+      <div style="margin-top: 10pt;"><span style="display: inline-block; background-color: #EEF2F6; color: #2563EB; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid #E2E8F0;">#architecture</span><span style="display: inline-block; background-color: #EEF2F6; color: #2563EB; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid #E2E8F0;">#cloud</span><span style="display: inline-block; background-color: #EEF2F6; color: #2563EB; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid #E2E8F0;">#performance</span><span style="display: inline-block; background-color: #EEF2F6; color: #2563EB; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid #E2E8F0;">#google-docs</span><span style="display: inline-block; background-color: #EEF2F6; color: #2563EB; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid #E2E8F0;">#documentation</span></div>
     </td>
   </tr>
 </table>
 
   
+  <div class="doc-body">
+    <h1 id="executive-summary" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="executive-summary"></a>Executive Summary</h1>
+<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">This strategic document outlines our engineering roadmap, cloud architecture milestones, and developer productivity enhancements<sup><a href="#fn-1" name="fnref-1" style="color: #2563EB; font-weight: 700; text-decoration: none; padding: 0 1pt;">[1]</a></sup>. Designed to be converted directly into an executive <strong>Google Docs</strong> report, preserving typographic harmony, table formatting, callouts, and syntax highlighting.</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #EFF6FF; border-left: 4.5pt solid #3B82F6; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #1E40AF; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">ℹ️</span>Note
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">All specifications in this document adhere strictly to the highest industrial enterprise standards<sup><a href="#fn-arch-study" name="fnref-arch-study" style="color: #2563EB; font-weight: 700; text-decoration: none; padding: 0 1pt;">[arch-study]</a></sup>.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+<hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
+<h1 id="table-of-contents" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="table-of-contents"></a>Table of Contents</h1>
+
 <!-- Table of Contents -->
 <table style="width: 100%; border-collapse: collapse; margin: 18pt 0 26pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 6pt;">
   <tr>
@@ -72,8 +95,26 @@
         </div>
         <div style="margin-left: 0pt; margin-bottom: 5pt; font-size: 10pt; line-height: 1.4;">
           <span style="color: #3B82F6; margin-right: 6pt; font-size: 8pt;">●</span>
+          <a href="#table-of-contents" style="color: #2563EB; text-decoration: none; font-weight: 600;">
+            Table of Contents
+          </a>
+        </div>
+        <div style="margin-left: 0pt; margin-bottom: 5pt; font-size: 10pt; line-height: 1.4;">
+          <span style="color: #3B82F6; margin-right: 6pt; font-size: 8pt;">●</span>
           <a href="#architecture-pillars" style="color: #2563EB; text-decoration: none; font-weight: 600;">
             Architecture Pillars
+          </a>
+        </div>
+        <div style="margin-left: 0pt; margin-bottom: 5pt; font-size: 10pt; line-height: 1.4;">
+          <span style="color: #3B82F6; margin-right: 6pt; font-size: 8pt;">●</span>
+          <a href="#extended-alert-admonitions" style="color: #2563EB; text-decoration: none; font-weight: 600;">
+            Extended Alert Admonitions
+          </a>
+        </div>
+        <div style="margin-left: 0pt; margin-bottom: 5pt; font-size: 10pt; line-height: 1.4;">
+          <span style="color: #3B82F6; margin-right: 6pt; font-size: 8pt;">●</span>
+          <a href="#advanced-typography-formatting" style="color: #2563EB; text-decoration: none; font-weight: 600;">
+            Advanced Typography &amp; Formatting
           </a>
         </div>
         <div style="margin-left: 0pt; margin-bottom: 5pt; font-size: 10pt; line-height: 1.4;">
@@ -105,24 +146,8 @@
   </tr>
 </table>
 
-  <div class="doc-body">
-    <h1 id="executive-summary" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">Executive Summary</h1>
-<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">This strategic document outlines our engineering roadmap, cloud architecture milestones, and developer productivity enhancements. Designed to be converted directly into an executive <strong>Google Docs</strong> report, preserving typographic harmony, table formatting, and syntax highlighting.</p>
-
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #EFF6FF; border-left: 4.5pt solid #3B82F6; border-radius: 0 6pt 6pt 0;">
-  <tr>
-    <td style="padding: 10pt 14pt; vertical-align: top;">
-      <div style="font-weight: 700; font-size: 11pt; color: #1E40AF; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
-        <span style="font-size: 12pt; margin-right: 6pt;">ℹ️</span>Note
-      </div>
-      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">All specifications in this document adhere strictly to the highest industrial enterprise standards.</p>
-      </div>
-    </td>
-  </tr>
-</table>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
-<h1 id="architecture-pillars" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">Architecture Pillars</h1>
+<h1 id="architecture-pillars" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="architecture-pillars"></a>Architecture Pillars</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The modern cloud stack is structured around four primary pillars:</p>
 <ol style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 6pt 0 10pt 0; padding-left: 20pt;">
 <li style="margin-bottom: 3.5pt;"><strong>Deterministic Builds</strong>: Completely reproducible artifacts across local and CI/CD environments.</li>
@@ -138,14 +163,116 @@
         <span style="font-size: 12pt; margin-right: 6pt;">💡</span>Pro Tip
       </div>
       <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Use the <strong>“Copy for Google Docs”</strong> command (<code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">Ctrl+Shift+P</code> -&gt; <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">Copy for Google Docs</code>) for 1-click clipboard paste directly into any Google Doc with 100% style fidelity.</p>
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Use the <strong>“Copy for Google Docs”</strong> command (<code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">Ctrl+Shift+P</code> -&gt; <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">Copy for Google Docs</code>), then press <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">Ctrl</kbd> + <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">V</kbd> inside any Google Doc for 100% style fidelity!</p>
       </div>
     </td>
   </tr>
 </table>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
-<h1 id="system-benchmark-latency-analysis" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">System Benchmark &amp; Latency Analysis</h1>
-<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The following table summarizes the response times and throughput under peak load:</p>
+<h1 id="extended-alert-admonitions" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="extended-alert-admonitions"></a>Extended Alert Admonitions</h1>
+<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The converter natively formats 12 distinct callout alert types as Google Docs single-cell tables:</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0F9FF; border-left: 4.5pt solid #0284C7; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #0369A1; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">ℹ️</span>Information
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Real-time streaming metrics are collected and aggregated via Google Cloud Pub/Sub.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDF4; border-left: 4.5pt solid #16A34A; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #15803D; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">✅</span>Verification Complete
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Automated test suite passed with 18 of 18 checks verified.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FAF5FF; border-left: 4.5pt solid #9333EA; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #7E22CE; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">❓</span>Need Guidance?
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Refer to the internal Developer Portal FAQ or reach out to <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">#platform-engineering</code>.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F0FDFA; border-left: 4.5pt solid #0D9488; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #0F766E; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">📋</span>Action Item
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Complete load testing on secondary staging cluster before Friday.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #F5F3FF; border-left: 4.5pt solid #7C3AED; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #5B21B6; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">🧪</span>Usage Example
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Example command line execution: <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">npm test</code> runs all unit tests.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FFFBEB; border-left: 4.5pt solid #F59E0B; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #92400E; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">⚠️</span>Token Expiration
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Expired tokens must be refreshed automatically before executing batch upload operations.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FEF2F2; border-left: 4.5pt solid #DC2626; border-radius: 0 6pt 6pt 0;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="font-weight: 700; font-size: 11pt; color: #B91C1C; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
+        <span style="font-size: 12pt; margin-right: 6pt;">⛔</span>Critical Failure Safeguard
+      </div>
+      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Automatic circuit breakers will trip if downstream failure exceeds 5% within a 60-second window.</p>
+      </div>
+    </td>
+  </tr>
+</table>
+<hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
+<h1 id="advanced-typography-formatting" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="advanced-typography-formatting"></a>Advanced Typography &amp; Formatting</h1>
+<ul style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 6pt 0 10pt 0; padding-left: 20pt;">
+<li style="margin-bottom: 3.5pt;"><strong>Inline Text Highlighting</strong>: Critical security alerts require <mark style="background-color: #FEF08A; color: #713F12; padding: 1.5pt 4pt; border-radius: 2pt;">immediate operator attention</mark>.</li>
+<li style="margin-bottom: 3.5pt;"><strong>Subscript &amp; Superscript</strong>: Chemical notation <span style="font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 11pt; font-style: italic; color: #0F172A; padding: 0 2pt;">H_2O</span> is written as H<sub style="font-size: 75%; line-height: 0; vertical-align: sub;">2</sub>O, while exponential scaling is <span style="font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 11pt; font-style: italic; color: #0F172A; padding: 0 2pt;">2^{32}</span> written as 2<sup style="font-size: 75%; line-height: 0; vertical-align: super;">32</sup>.</li>
+<li style="margin-bottom: 3.5pt;"><strong>Editorial Insertions</strong>: Deprecated APIs were replaced with <ins style="text-decoration: underline; background-color: #DCFCE7; padding: 1pt 2pt;">modern REST endpoints</ins>.</li>
+<li style="margin-bottom: 3.5pt;"><strong>Keyboard Shortcuts</strong>: Press <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">Ctrl</kbd> + <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">Shift</kbd> + <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">P</kbd> to open the Command Palette.</li>
+</ul>
+<hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
+<h1 id="system-benchmark-latency-analysis" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="system-benchmark-latency-analysis"></a>System Benchmark &amp; Latency Analysis</h1>
+<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">The following table summarizes response times and throughput under peak load:</p>
 
 <table style="width: 100%; border-collapse: collapse; margin: 16pt 0; border: 1pt solid #E2E8F0; border-radius: 4pt; overflow: hidden;">
   
@@ -209,12 +336,13 @@
   </tr>
 </table>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
-<h1 id="implementation-code" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">Implementation Code</h1>
+<h1 id="implementation-code" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="implementation-code"></a>Implementation Code</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">Below is the core implementation for multipart file streaming to the Google Drive API:</p>
 
 <table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="float: right; font-size: 7.5pt; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; text-transform: uppercase; color: #64748B; background-color: #E2E8F0; padding: 1.5pt 5pt; border-radius: 3pt; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6pt;">TYPESCRIPT</div>
       <pre style="margin: 0; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9.5pt; line-height: 1.45; color: #0F172A; white-space: pre-wrap; word-wrap: break-word;"><code><span style="color: #D73A49; font-weight: 600;">import</span> { <span style="color: #6F42C1; font-weight: 600;">GoogleDriveClient</span>, <span style="color: #6F42C1; font-weight: 600;">DriveUploadResult</span> } <span style="color: #D73A49; font-weight: 600;">from</span> <span style="color: #032F62;">&#x27;./google/googleDriveClient&#x27;</span>;
 
 <span style="color: #D73A49; font-weight: 600;">async</span> <span style="color: #D73A49; font-weight: 600;">function</span> <span style="color: #6F42C1; font-weight: 600;">syncMarkdownDocument</span>(<span style="color: #24292E;"><span style="color: #22863A;">title</span>: <span style="color: #005CC5;">string</span>, <span style="color: #22863A;">htmlContent</span>: <span style="color: #005CC5;">string</span>, <span style="color: #22863A;">token</span>: <span style="color: #005CC5;">string</span></span>): <span style="color: #6F42C1; font-weight: 600;">Promise</span>&lt;<span style="color: #6F42C1; font-weight: 600;">DriveUploadResult</span>&gt; {
@@ -232,50 +360,77 @@
     </td>
   </tr>
 </table>
+<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">And in Python for automated report generation:</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 4pt;">
+  <tr>
+    <td style="padding: 10pt 14pt; vertical-align: top;">
+      <div style="float: right; font-size: 7.5pt; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; text-transform: uppercase; color: #64748B; background-color: #E2E8F0; padding: 1.5pt 5pt; border-radius: 3pt; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6pt;">PYTHON</div>
+      <pre style="margin: 0; font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9.5pt; line-height: 1.45; color: #0F172A; white-space: pre-wrap; word-wrap: break-word;"><code><span style="color: #D73A49; font-weight: 600;">import</span> requests
+
+<span style="color: #D73A49; font-weight: 600;">def</span> <span style="color: #6F42C1; font-weight: 600;">upload_gdoc</span>(<span style="color: #24292E;">title: <span style="color: #005CC5;">str</span>, html_payload: <span style="color: #005CC5;">str</span>, token: <span style="color: #005CC5;">str</span></span>) -&gt; <span style="color: #005CC5;">str</span>:
+    <span style="color: #032F62;">&quot;&quot;&quot;Uploads styled HTML directly to Google Drive as a native Google Doc.&quot;&quot;&quot;</span>
+    headers = {<span style="color: #032F62;">&quot;Authorization&quot;</span>: <span style="color: #032F62;">f&quot;Bearer <span style="color: #24292E;">{token}</span>&quot;</span>}
+    files = {
+        <span style="color: #032F62;">&#x27;data&#x27;</span>: (<span style="color: #032F62;">&#x27;metadata&#x27;</span>, <span style="color: #032F62;">&#x27;{&quot;name&quot;: &quot;&#x27;</span> + title + <span style="color: #032F62;">&#x27;&quot;, &quot;mimeType&quot;: &quot;application/vnd.google-apps.document&quot;}&#x27;</span>, <span style="color: #032F62;">&#x27;application/json&#x27;</span>),
+        <span style="color: #032F62;">&#x27;file&#x27;</span>: (<span style="color: #032F62;">&#x27;content.html&#x27;</span>, html_payload, <span style="color: #032F62;">&#x27;text/html&#x27;</span>)
+    }
+    response = requests.post(<span style="color: #032F62;">&quot;https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&quot;</span>, headers=headers, files=files)
+    <span style="color: #D73A49; font-weight: 600;">return</span> response.json().get(<span style="color: #032F62;">&quot;id&quot;</span>)
+</code></pre>
+    </td>
+  </tr>
+</table>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">Inline code elements like <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">const token = await auth.getToken();</code> and <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">google.drive.v3</code> are formatted with crisp borders and tinted backgrounds.</p>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
-<h1 id="mathematical-calculations" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">Mathematical Calculations</h1>
+<h1 id="mathematical-calculations" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="mathematical-calculations"></a>Mathematical Calculations</h1>
 <p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;">Mass-energy equivalence is computed via <span style="font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 11pt; font-style: italic; color: #0F172A; padding: 0 2pt;">E = mc^2</span>, and the standard quadratic optimization function is expressed as:</p>
 <div style="margin: 14pt 0; padding: 12pt; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; text-align: center; font-family: 'Cambria Math', 'Latin Modern Math', 'Times New Roman', serif; font-size: 13pt; color: #0F172A;"><em>x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}</em></div>
 <hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
-<h1 id="action-checklist" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;">Action Checklist</h1>
+<h1 id="action-checklist" style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 21pt; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid #E2E8F0; letter-spacing: -0.3px;"><a name="action-checklist"></a>Action Checklist</h1>
 <ul style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 6pt 0 10pt 0; padding-left: 20pt;">
 <li style="margin-bottom: 3.5pt;">☑ <s>Complete Markdown Parser AST with inline style translation</s></li>
 <li style="margin-bottom: 3.5pt;">☑ <s>Implement 5 Curated Professional Themes (Modern Slate, Executive Navy, Emerald, Crimson, Tech Violet)</s></li>
 <li style="margin-bottom: 3.5pt;">☑ <s>Build Google Drive API multipart upload with native <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">vnd.google-apps.document</code> conversion</s></li>
-<li style="margin-bottom: 3.5pt;">☑ <s>Support 1-Click zero-config Rich Clipboard copy (<code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">Ctrl+V</code> into Google Docs)</s></li>
-<li style="margin-bottom: 3.5pt;">☑ <s>Build Live Side-by-Side Google Docs Preview Webview</s></li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Support 1-Click zero-config Rich Clipboard copy (<kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">Ctrl</kbd> + <kbd style="display: inline-block; padding: 1.5pt 5pt; font-size: 8.5pt; font-family: monospace; line-height: 1.2; color: #1E293B; background-color: #F1F5F9; border: 1pt solid #CBD5E1; border-radius: 3pt; box-shadow: 0 1pt 0 #94A3B8;">V</kbd> into Google Docs)</s></li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Build Live Side-by-Side Google Docs Preview Webview with smooth anchor jumping</s></li>
 <li style="margin-bottom: 3.5pt;">☑ <s>Provide local HTML and DOCX export capabilities</s></li>
-<li style="margin-bottom: 3.5pt;">☐ Schedule user walkthrough and feedback session</li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Implement native <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">&lt;a name=&quot;...&quot;&gt;</code> bookmarks for Table of Contents &amp; Cross-References</s></li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Support manual <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">[TOC]</code> placement and configurable <code style="font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace; font-size: 9pt; background-color: #F1F5F9; color: #2563EB; padding: 1.5pt 4.5pt; border-radius: 3pt; border: 1pt solid #E2E8F0;">toc_depth</code></s></li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Support Footnotes citations with bidirectional links</s></li>
+<li style="margin-bottom: 3.5pt;">☑ <s>Extended callout admonitions (12 types)</s></li>
+<li style="margin-bottom: 3.5pt;">☐ Conduct final user walkthrough</li>
 </ul>
-
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FFFBEB; border-left: 4.5pt solid #F59E0B; border-radius: 0 6pt 6pt 0;">
-  <tr>
-    <td style="padding: 10pt 14pt; vertical-align: top;">
-      <div style="font-weight: 700; font-size: 11pt; color: #92400E; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
-        <span style="font-size: 12pt; margin-right: 6pt;">⚠️</span>Warning
-      </div>
-      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Expired tokens must be refreshed automatically before executing batch upload operations.</p>
-      </div>
-    </td>
-  </tr>
-</table>
-
-<table style="width: 100%; border-collapse: collapse; margin: 14pt 0; border: none; background-color: #FEF2F2; border-left: 4.5pt solid #EF4444; border-radius: 0 6pt 6pt 0;">
-  <tr>
-    <td style="padding: 10pt 14pt; vertical-align: top;">
-      <div style="font-weight: 700; font-size: 11pt; color: #991B1B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin-bottom: 4pt;">
-        <span style="font-size: 12pt; margin-right: 6pt;">🛑</span>Caution
-      </div>
-      <div style="font-size: 10.5pt; line-height: 1.5; color: #1E293B; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-        <p style="margin: 0; font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1E293B;">Never commit Google Cloud Client Secrets or Service Account Private Keys directly to version control.</p>
-      </div>
-    </td>
-  </tr>
-</table>
+<hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
+<p style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1E293B; margin: 0 0 8pt 0;"><a href="#top" style="color: #2563EB; text-decoration: underline; font-weight: 500;">Back to Top</a></p>
+<hr style="border: none; border-top: 1.5pt solid #E2E8F0; margin: 20pt 0;" />
 
   </div>
+  
+<!-- Footnotes Section -->
+<table style="width: 100%; border-collapse: collapse; margin-top: 32pt; border-top: 1.5pt solid #E2E8F0; padding-top: 14pt;">
+  <tr>
+    <td style="padding: 14pt 0 0 0;">
+      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 11pt; font-weight: 700; color: #0F172A; margin-bottom: 10pt; text-transform: uppercase; letter-spacing: 0.5px;">
+        Footnotes
+      </div>
+      
+      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 9.5pt; color: #64748B; margin-bottom: 6pt; line-height: 1.45;">
+        <a name="fn-1"></a>
+        <span style="font-weight: 700; color: #2563EB; margin-right: 5pt;">[1]</span>
+        <span style="color: #1E293B;">Enterprise Cloud Architecture Guidelines, Technical Report Series, 2026.</span>
+        <a href="#fnref-1" style="color: #2563EB; text-decoration: none; margin-left: 5pt; font-weight: 700;" title="Jump back to reference">↩</a>
+      </div>
+      <div style="font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 9.5pt; color: #64748B; margin-bottom: 6pt; line-height: 1.45;">
+        <a name="fn-arch-study"></a>
+        <span style="font-weight: 700; color: #2563EB; margin-right: 5pt;">[arch-study]</span>
+        <span style="color: #1E293B;">Global High-Availability Benchmark Study, Platform Reliability Working Group.</span>
+        <a href="#fnref-arch-study" style="color: #2563EB; text-decoration: none; margin-left: 5pt; font-weight: 700;" title="Jump back to reference">↩</a>
+      </div>
+    </td>
+  </tr>
+</table>
+
 </div>
   </div>
 </body>

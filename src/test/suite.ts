@@ -41,7 +41,7 @@ tags: [strategy, q3, executive]
 Document content goes here.
 `;
     const parser = new MarkdownParser();
-    const { frontmatter, bodyMarkdown, parsedHtml } = parser.parse(md);
+    const { frontmatter, bodyMarkdown } = parser.parse(md);
 
     assert.strictEqual(frontmatter.title, 'Quarterly Strategic Report');
     assert.strictEqual(frontmatter.author, 'Jehadur RE');
@@ -66,7 +66,6 @@ Document content goes here.
     const generator = new GoogleDocsHtmlGenerator({ theme: 'modern-corporate' });
     const result = generator.convert(md);
 
-    // Verify callouts are converted to styled tables with colored left border
     assert.ok(result.clipboardHtml.includes('border-left: 4.5pt solid #3B82F6'), 'Note border not found');
     assert.ok(result.clipboardHtml.includes('border-left: 4.5pt solid #10B981'), 'Tip border not found');
     assert.ok(result.clipboardHtml.includes('border-left: 4.5pt solid #F59E0B'), 'Warning border not found');
@@ -86,10 +85,8 @@ function calculate(x: number): number {
     const generator = new GoogleDocsHtmlGenerator({ theme: 'modern-corporate' });
     const result = generator.convert(md);
 
-    // Must contain inline style with color for keywords and strings
     assert.ok(result.clipboardHtml.includes('style="color: #D73A49; font-weight: 600;"') || result.clipboardHtml.includes('color: #D73A49'), 'Keyword style missing');
     assert.ok(result.clipboardHtml.includes('color: #032F62') || result.clipboardHtml.includes('color:'), 'String style missing');
-    // Must NOT contain unstyled hljs class spans without style
     assert.ok(!result.clipboardHtml.includes('<span class="hljs-keyword">'), 'Unstyled hljs class should not exist');
   });
 
@@ -120,7 +117,6 @@ function calculate(x: number): number {
     const generator = new GoogleDocsHtmlGenerator({ theme: 'modern-corporate', tableZebraStriping: true });
     const result = generator.convert(md);
 
-    // Header styling check
     assert.ok(result.clipboardHtml.includes('background-color: #1E293B'), 'Table header background missing');
     assert.ok(result.clipboardHtml.includes('text-align: center'), 'Center alignment missing');
     assert.ok(result.clipboardHtml.includes('text-align: right'), 'Right alignment missing');
@@ -208,7 +204,6 @@ Content 4
 
   // Test 10: Local relative images resolution to base64 Data URIs
   await test('Local relative images are resolved and embedded as base64 Data URIs', () => {
-    // Create a temporary image in scratch directory
     const tempDir = path.join(__dirname, '../../test-assets');
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
@@ -225,7 +220,6 @@ Here is an image:
 
     assert.ok(parsedHtml.includes('data:image/svg+xml;base64,'), 'Image not converted to base64 Data URI');
 
-    // Cleanup
     try {
       fs.unlinkSync(tempImgPath);
       fs.rmdirSync(tempDir);
@@ -253,7 +247,6 @@ Some body text with **bold** and \`inline code\`.
 
     assert.ok(buffer instanceof Buffer, 'Docx output is not a Buffer');
     assert.ok(buffer.length > 1000, 'Docx buffer too small');
-    // Check DOCX magic numbers (PK zip signature 0x50, 0x4B, 0x03, 0x04)
     assert.strictEqual(buffer[0], 0x50);
     assert.strictEqual(buffer[1], 0x4B);
   });
@@ -266,6 +259,150 @@ Some body text with **bold** and \`inline code\`.
 
     const result2 = generator.convert('Just a single line of text with no headers.');
     assert.ok(result2.clipboardHtml.includes('Just a single line of text'));
+  });
+
+  // Test 13: Google Docs Named Bookmark Anchors for TOC and Cross-References
+  await test('Headings contain <a name="slug"></a> anchors for native Google Docs bookmarks', () => {
+    const md = `
+# Executive Summary
+Key highlights.
+## Strategic Goals
+Goal descriptions.
+`;
+    const generator = new GoogleDocsHtmlGenerator({ includeToc: true });
+    const result = generator.convert(md);
+
+    // Verify named anchors are present inside headings for Google Docs bookmark recognition
+    assert.ok(result.clipboardHtml.includes('<a name="executive-summary"></a>'), 'Heading missing name anchor');
+    assert.ok(result.clipboardHtml.includes('<a name="strategic-goals"></a>'), 'Subheading missing name anchor');
+    // Verify TOC links target these anchors
+    assert.ok(result.clipboardHtml.includes('href="#executive-summary"'), 'TOC link href missing');
+    assert.ok(result.clipboardHtml.includes('href="#strategic-goals"'), 'TOC link href missing');
+  });
+
+  // Test 14: Manual [TOC] Directive Placement and Depth Filtering
+  await test('Manual [TOC] directive places Table of Contents at author-defined position', () => {
+    const md = `
+# Introduction
+Introductory paragraph.
+
+[TOC]
+
+# Section 1
+Deep section.
+#### Very Deep Subsection
+Deep details.
+`;
+    const generator = new GoogleDocsHtmlGenerator({ includeToc: true, tocDepth: 2 });
+    const result = generator.convert(md);
+
+    // Verify TOC appeared after Introduction, not before
+    const introPos = result.clipboardHtml.indexOf('Introductory paragraph.');
+    const tocPos = result.clipboardHtml.indexOf('Table of Contents');
+    const sec1Pos = result.clipboardHtml.indexOf('Section 1');
+
+    assert.ok(introPos < tocPos, 'TOC should be after Introduction');
+    assert.ok(tocPos < sec1Pos, 'TOC should be before Section 1');
+    // Depth 2 filter should exclude Level 4 heading from TOC
+    assert.ok(!result.clipboardHtml.includes('Very Deep Subsection</a>'), 'TOC depth filter failed');
+  });
+
+  // Test 15: Footnotes Engine with Bidirectional Linking
+  await test('Footnotes parse inline references and render bottom section with return links', () => {
+    const md = `
+This is a statement based on research[^1] and another citation[^source-alpha].
+
+[^1]: First detailed reference study.
+[^source-alpha]: Technical whitepaper 2026.
+`;
+    const generator = new GoogleDocsHtmlGenerator();
+    const result = generator.convert(md);
+
+    // Verify inline superscripts
+    assert.ok(result.clipboardHtml.includes('<sup><a href="#fn-1" name="fnref-1"'), 'Footnote 1 reference missing');
+    assert.ok(result.clipboardHtml.includes('<sup><a href="#fn-source-alpha" name="fnref-source-alpha"'), 'Footnote source-alpha reference missing');
+
+    // Verify bottom footnotes section
+    assert.ok(result.clipboardHtml.includes('Footnotes'), 'Footnotes section header missing');
+    assert.ok(result.clipboardHtml.includes('<a name="fn-1"></a>'), 'Footnote anchor missing');
+    assert.ok(result.clipboardHtml.includes('First detailed reference study.'), 'Footnote content missing');
+    assert.ok(result.clipboardHtml.includes('href="#fnref-1"'), 'Footnote backlink missing');
+  });
+
+  // Test 16: Extended Callout Types
+  await test('Extended callout types (INFO, SUCCESS, DANGER, QUESTION, TODO, EXAMPLE) render with correct themes', () => {
+    const md = `
+> [!INFO]
+> Informational callout.
+
+> [!SUCCESS]
+> Task completed successfully!
+
+> [!DANGER]
+> Critical system warning.
+
+> [!QUESTION]
+> Frequently asked inquiry.
+
+> [!TODO]
+> Action item for team.
+
+> [!EXAMPLE]
+> Sample usage demonstration.
+`;
+    const generator = new GoogleDocsHtmlGenerator({ theme: 'modern-corporate' });
+    const result = generator.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('Information'), 'Info title missing');
+    assert.ok(result.clipboardHtml.includes('Success'), 'Success title missing');
+    assert.ok(result.clipboardHtml.includes('Danger'), 'Danger title missing');
+    assert.ok(result.clipboardHtml.includes('Question'), 'Question title missing');
+    assert.ok(result.clipboardHtml.includes('To-Do'), 'Todo title missing');
+    assert.ok(result.clipboardHtml.includes('Example'), 'Example title missing');
+  });
+
+  // Test 17: Typography Extensions (Highlight, Sub, Sup, Ins, Kbd)
+  await test('Typography extensions render styled inline elements', () => {
+    const md = `
+Water is H~2~O, while $E = mc$^2^.
+This text is ==critically highlighted==.
+Added text is ++newly inserted++.
+Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.
+`;
+    const generator = new GoogleDocsHtmlGenerator();
+    const result = generator.convert(md);
+
+    assert.ok(result.clipboardHtml.includes('<sub style="font-size: 75%'), 'Subscript missing');
+    assert.ok(result.clipboardHtml.includes('<sup style="font-size: 75%'), 'Superscript missing');
+    assert.ok(result.clipboardHtml.includes('<mark style="background-color: #FEF08A;'), 'Highlight missing');
+    assert.ok(result.clipboardHtml.includes('<ins style="text-decoration: underline;'), 'Inserted text missing');
+    assert.ok(result.clipboardHtml.includes('<kbd style="display: inline-block;'), 'Kbd styling missing');
+  });
+
+  // Test 18: Frontmatter Per-Document Overrides and Code Block Language Badges
+  await test('Frontmatter overrides theme and options per document, code blocks include language badges', () => {
+    const md = `---
+title: "Custom Document"
+theme: "emerald-mint"
+toc: false
+zebra_stripes: false
+---
+# Document Header
+
+\`\`\`python
+def hello():
+    print("world")
+\`\`\`
+`;
+    const generator = new GoogleDocsHtmlGenerator({ theme: 'modern-corporate', includeToc: true });
+    const result = generator.convert(md);
+
+    // Verify emerald-mint theme overrode modern-corporate
+    assert.ok(result.clipboardHtml.includes('#064E3B'), 'Emerald mint primary color missing');
+    // Verify toc: false in frontmatter suppressed TOC
+    assert.ok(!result.clipboardHtml.includes('Table of Contents'), 'TOC should have been suppressed by frontmatter');
+    // Verify code block contains language badge
+    assert.ok(result.clipboardHtml.includes('PYTHON'), 'Code block language badge missing');
   });
 
   console.log(`\n========================================`);

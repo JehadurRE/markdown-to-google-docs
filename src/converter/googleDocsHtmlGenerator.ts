@@ -1,4 +1,4 @@
-import { ConversionResult, ConverterOptions, FrontmatterData, ThemeColors, TocItem } from './types';
+import { ConversionResult, ConverterOptions, FootnoteItem, FrontmatterData, ThemeColors, TocItem } from './types';
 import { getTheme } from './themes';
 import { MarkdownParser } from './markdownParser';
 
@@ -12,8 +12,18 @@ export class GoogleDocsHtmlGenerator {
   }
 
   public convert(markdownContent: string): ConversionResult {
-    const parser = new MarkdownParser(this.options);
-    const { frontmatter, parsedHtml, toc } = parser.parse(markdownContent);
+    // 1. Initial Parse
+    const initialParser = new MarkdownParser(this.options);
+    const { frontmatter, parsedHtml, toc, footnotes, hasManualToc } = initialParser.parse(markdownContent);
+
+    // 2. Apply per-document Frontmatter overrides
+    const effectiveThemeName = frontmatter.theme || this.options.theme;
+    this.theme = getTheme(effectiveThemeName);
+
+    const effectiveFontFamily = frontmatter.font || this.options.fontFamily || this.theme.fontFamily;
+    const includeToc = frontmatter.toc !== undefined ? Boolean(frontmatter.toc) : (this.options.includeToc !== false);
+    const tocDepth = typeof frontmatter.toc_depth === 'number' ? frontmatter.toc_depth : (this.options.tocDepth || 3);
+    const tableZebra = frontmatter.zebra_stripes !== undefined ? Boolean(frontmatter.zebra_stripes) : (this.options.tableZebraStriping !== false);
 
     // Determine document title: frontmatter title > first H1 > fallback
     let docTitle = frontmatter.title || '';
@@ -26,26 +36,40 @@ export class GoogleDocsHtmlGenerator {
       }
     }
 
-    // 1. Build Executive Header Card from Frontmatter
+    // 3. Build Executive Header Card from Frontmatter
     const headerHtml = this.generateExecutiveHeader(frontmatter, docTitle);
 
-    // 2. Build Table of Contents (if requested & sufficient headings exist)
-    const tocHtml = (this.options.includeToc !== false && toc.length >= 2)
-      ? this.generateTableOfContents(toc)
+    // 4. Build Table of Contents
+    const tocHtml = (includeToc && toc.length >= 2)
+      ? this.generateTableOfContents(toc, tocDepth)
       : '';
 
-    // 3. Style and transform body elements with inline Google Docs CSS
-    const styledBodyHtml = this.applyGoogleDocsStyles(parsedHtml);
+    // 5. Style and transform body elements with inline Google Docs CSS
+    let styledBodyHtml = this.applyGoogleDocsStyles(parsedHtml, tableZebra);
 
-    // Combine all components
+    // If author placed a manual [TOC] marker, replace it with the generated TOC
+    if (hasManualToc) {
+      styledBodyHtml = styledBodyHtml.replace('<!-- DOCUMENT_TOC_PLACEHOLDER -->', tocHtml);
+    }
+
+    // 6. Build Footnotes Section if any exist
+    const footnotesHtml = (footnotes && footnotes.length > 0)
+      ? this.generateFootnotesSection(footnotes)
+      : '';
+
+    // Combine all components (top TOC is only prepended if NO manual [TOC] was placed)
+    const topToc = (!hasManualToc && includeToc && toc.length >= 2) ? tocHtml : '';
+
     const contentFragment = `
 <!-- Google Docs Compatible Formatted Document -->
-<div style="font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; background-color: ${this.theme.bgDocument}; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
+<div style="font-family: ${effectiveFontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; background-color: ${this.theme.bgDocument}; max-width: 820px; margin: 0 auto; padding: 24pt 32pt;">
+  <a name="top"></a>
   ${headerHtml}
-  ${tocHtml}
+  ${topToc}
   <div class="doc-body">
     ${styledBodyHtml}
   </div>
+  ${footnotesHtml}
 </div>
 `.trim();
 
@@ -59,11 +83,14 @@ export class GoogleDocsHtmlGenerator {
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
     
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
       padding: 0;
       background-color: #F1F5F9;
-      font-family: ${this.theme.fontFamily};
+      font-family: ${effectiveFontFamily};
       color: ${this.theme.text};
       -webkit-font-smoothing: antialiased;
     }
@@ -74,7 +101,7 @@ export class GoogleDocsHtmlGenerator {
       padding: 54px 64px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
       border-radius: 4px;
-      min-height: 1056px; /* US Letter ratio */
+      min-height: 1056px;
     }
     @media print {
       body { background: transparent; }
@@ -99,44 +126,48 @@ export class GoogleDocsHtmlGenerator {
       clipboardHtml: contentFragment,
       frontmatter,
       title: docTitle,
-      toc
+      toc,
+      footnotes
     };
   }
 
   private generateExecutiveHeader(frontmatter: FrontmatterData, fallbackTitle: string): string {
-    const hasFrontmatter = Object.keys(frontmatter).length > 0;
     const title = frontmatter.title || fallbackTitle;
     const subtitle = frontmatter.subtitle || frontmatter.description || '';
     const author = frontmatter.author || (frontmatter.authors ? frontmatter.authors.join(', ') : '');
     const date = frontmatter.date ? String(frontmatter.date) : '';
-    const version = frontmatter.version ? `v${frontmatter.version}` : '';
+    const version = frontmatter.version ? String(frontmatter.version) : '';
     const status = frontmatter.status || '';
+    const organization = frontmatter.organization || '';
     const tags = frontmatter.tags || [];
 
-    const hasMeta = author || date || version || status || tags.length > 0 || subtitle;
-
-    if (!hasFrontmatter && !hasMeta) {
+    const hasAnyMeta = subtitle || author || date || version || status || organization || (tags && tags.length > 0);
+    if (!hasAnyMeta && title === fallbackTitle) {
       return '';
     }
 
-    let metaBadges = '';
+    // Metadata items badges
+    const metaBadges: string[] = [];
     if (author) {
-      metaBadges += `<span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong>Author:</strong> ${this.escapeHtml(author)}</span>`;
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Author:</strong> ${this.escapeHtml(author)}</span>`);
+    }
+    if (organization) {
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Org:</strong> ${this.escapeHtml(organization)}</span>`);
     }
     if (date) {
-      metaBadges += `<span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong>Date:</strong> ${this.escapeHtml(date)}</span>`;
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Date:</strong> ${this.escapeHtml(date)}</span>`);
     }
     if (version) {
-      metaBadges += `<span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; background-color: ${this.theme.primaryLight}; color: ${this.theme.secondary}; padding: 2pt 8pt; border-radius: 12px; font-weight: 600; font-size: 9pt;">${this.escapeHtml(version)}</span>`;
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Version:</strong> <span style="background-color: ${this.theme.primaryLight}; color: ${this.theme.primary}; padding: 1.5pt 5.5pt; border-radius: 3pt; font-weight: 600; font-size: 8.5pt;">v${this.escapeHtml(version)}</span></span>`);
     }
     if (status) {
-      metaBadges += `<span style="display: inline-block; margin-right: 14pt; margin-bottom: 4pt; background-color: #FEF3C7; color: #92400E; padding: 2pt 8pt; border-radius: 12px; font-weight: 600; font-size: 9pt; text-transform: uppercase;">${this.escapeHtml(status)}</span>`;
+      metaBadges.push(`<span style="margin-right: 14pt; color: ${this.theme.textMuted}; font-size: 9.5pt;"><strong style="color: ${this.theme.primary}; font-weight: 600;">Status:</strong> <span style="background-color: #DEF7EC; color: #03543F; padding: 1.5pt 5.5pt; border-radius: 3pt; font-weight: 600; font-size: 8.5pt; text-transform: uppercase;">${this.escapeHtml(status)}</span></span>`);
     }
 
     let tagsHtml = '';
-    if (tags.length > 0) {
-      tagsHtml = `<div style="margin-top: 6pt;">` + tags.map((t: string) => 
-        `<span style="display: inline-block; margin-right: 6pt; margin-bottom: 4pt; background-color: #F1F5F9; color: ${this.theme.textMuted}; padding: 2pt 7pt; border-radius: 4pt; font-size: 8.5pt;">#${this.escapeHtml(t)}</span>`
+    if (tags && tags.length > 0) {
+      tagsHtml = `<div style="margin-top: 10pt;">` + tags.map(tag =>
+        `<span style="display: inline-block; background-color: ${this.theme.primaryLight}; color: ${this.theme.secondary}; font-size: 8.5pt; font-weight: 600; padding: 2pt 7pt; border-radius: 10pt; margin-right: 5pt; border: 1pt solid ${this.theme.border};">#${this.escapeHtml(tag)}</span>`
       ).join('') + `</div>`;
     }
 
@@ -149,7 +180,7 @@ export class GoogleDocsHtmlGenerator {
         ${this.escapeHtml(title)}
       </h1>
       ${subtitle ? `<div style="font-family: ${this.theme.fontFamily}; font-size: 13pt; color: ${this.theme.textMuted}; line-height: 1.4; margin-bottom: 12pt; font-weight: 400;">${this.escapeHtml(subtitle)}</div>` : ''}
-      ${metaBadges ? `<div style="font-family: ${this.theme.fontFamily}; line-height: 1.6;">${metaBadges}</div>` : ''}
+      ${metaBadges.length > 0 ? `<div style="font-family: ${this.theme.fontFamily}; line-height: 1.6;">${metaBadges.join('')}</div>` : ''}
       ${tagsHtml}
     </td>
   </tr>
@@ -157,9 +188,9 @@ export class GoogleDocsHtmlGenerator {
 `;
   }
 
-  private generateTableOfContents(toc: TocItem[]): string {
+  private generateTableOfContents(toc: TocItem[], maxDepth: number = 3): string {
     const itemsHtml = toc
-      .filter(item => item.level >= 1 && item.level <= 3)
+      .filter(item => item.level >= 1 && item.level <= maxDepth)
       .map(item => {
         const indent = (item.level - 1) * 16;
         const bullet = item.level === 1 ? '●' : item.level === 2 ? '○' : '▪';
@@ -190,44 +221,76 @@ export class GoogleDocsHtmlGenerator {
 `;
   }
 
-  private applyGoogleDocsStyles(html: string): string {
+  private generateFootnotesSection(footnotes: FootnoteItem[]): string {
+    const itemsHtml = footnotes.map(fn => {
+      return `
+      <div style="font-family: ${this.theme.fontFamily}; font-size: 9.5pt; color: ${this.theme.textMuted}; margin-bottom: 6pt; line-height: 1.45;">
+        <a name="fn-${fn.id}"></a>
+        <span style="font-weight: 700; color: ${this.theme.secondary}; margin-right: 5pt;">[${this.escapeHtml(fn.label)}]</span>
+        <span style="color: ${this.theme.text};">${fn.content}</span>
+        <a href="#fnref-${fn.id}" style="color: ${this.theme.secondary}; text-decoration: none; margin-left: 5pt; font-weight: 700;" title="Jump back to reference">↩</a>
+      </div>`;
+    }).join('');
+
+    return `
+<!-- Footnotes Section -->
+<table style="width: 100%; border-collapse: collapse; margin-top: 32pt; border-top: 1.5pt solid ${this.theme.border}; padding-top: 14pt;">
+  <tr>
+    <td style="padding: 14pt 0 0 0;">
+      <div style="font-family: ${this.theme.headingFontFamily}; font-size: 11pt; font-weight: 700; color: ${this.theme.primary}; margin-bottom: 10pt; text-transform: uppercase; letter-spacing: 0.5px;">
+        Footnotes
+      </div>
+      ${itemsHtml}
+    </td>
+  </tr>
+</table>
+`;
+  }
+
+  private applyGoogleDocsStyles(html: string, tableZebraStriping: boolean = true): string {
     let output = html;
 
-    // 1. Headings (H1 to H6)
-    output = output.replace(/<h1(\s+id="[^"]*")?>([\s\S]*?)<\/h1>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h1${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 21pt; font-weight: 700; color: ${this.theme.primary}; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid ${this.theme.border}; letter-spacing: -0.3px;">${content}</h1>`;
+    // 1. Headings (H1 to H6) with Google Docs Named Bookmark Anchors (<a name="slug"></a>)
+    output = output.replace(/<h1(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h1>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h1${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 21pt; font-weight: 700; color: ${this.theme.primary}; line-height: 1.3; margin: 24pt 0 10pt 0; padding-bottom: 5pt; border-bottom: 1pt solid ${this.theme.border}; letter-spacing: -0.3px;">${anchor}${content}</h1>`;
     });
 
-    output = output.replace(/<h2(\s+id="[^"]*")?>([\s\S]*?)<\/h2>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h2${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 16pt; font-weight: 600; color: ${this.theme.primary}; line-height: 1.35; margin: 20pt 0 8pt 0; letter-spacing: -0.2px;">${content}</h2>`;
+    output = output.replace(/<h2(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h2>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h2${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 16pt; font-weight: 600; color: ${this.theme.primary}; line-height: 1.35; margin: 20pt 0 8pt 0; letter-spacing: -0.2px;">${anchor}${content}</h2>`;
     });
 
-    output = output.replace(/<h3(\s+id="[^"]*")?>([\s\S]*?)<\/h3>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h3${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 13pt; font-weight: 600; color: ${this.theme.secondary}; line-height: 1.4; margin: 16pt 0 6pt 0;">${content}</h3>`;
+    output = output.replace(/<h3(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h3>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h3${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 13pt; font-weight: 600; color: ${this.theme.secondary}; line-height: 1.4; margin: 16pt 0 6pt 0;">${anchor}${content}</h3>`;
     });
 
-    output = output.replace(/<h4(\s+id="[^"]*")?>([\s\S]*?)<\/h4>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h4${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 11.5pt; font-weight: 600; color: ${this.theme.text}; line-height: 1.4; margin: 12pt 0 4pt 0; text-transform: uppercase; letter-spacing: 0.5px;">${content}</h4>`;
+    output = output.replace(/<h4(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h4>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h4${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 11.5pt; font-weight: 600; color: ${this.theme.text}; line-height: 1.4; margin: 12pt 0 4pt 0; text-transform: uppercase; letter-spacing: 0.5px;">${anchor}${content}</h4>`;
     });
 
-    output = output.replace(/<h5(\s+id="[^"]*")?>([\s\S]*?)<\/h5>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h5${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 10.5pt; font-weight: 600; color: ${this.theme.textMuted}; line-height: 1.4; margin: 10pt 0 4pt 0;">${content}</h5>`;
+    output = output.replace(/<h5(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h5>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h5${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 10.5pt; font-weight: 600; color: ${this.theme.textMuted}; line-height: 1.4; margin: 10pt 0 4pt 0;">${anchor}${content}</h5>`;
     });
 
-    output = output.replace(/<h6(\s+id="[^"]*")?>([\s\S]*?)<\/h6>/gi, (match, idAttr, content) => {
-      const id = idAttr || '';
-      return `<h6${id} style="font-family: ${this.theme.headingFontFamily}; font-size: 10pt; font-style: italic; color: ${this.theme.textMuted}; line-height: 1.4; margin: 8pt 0 4pt 0;">${content}</h6>`;
+    output = output.replace(/<h6(?:\s+id="([^"]*)")?>([\s\S]*?)<\/h6>/gi, (match, id, content) => {
+      const slug = id || '';
+      const anchor = slug && !content.includes(`name="${slug}"`) ? `<a name="${slug}"></a>` : '';
+      return `<h6${slug ? ` id="${slug}"` : ''} style="font-family: ${this.theme.headingFontFamily}; font-size: 10pt; font-style: italic; color: ${this.theme.textMuted}; line-height: 1.4; margin: 8pt 0 4pt 0;">${anchor}${content}</h6>`;
     });
 
-    // 2. Paragraphs (Skip paragraphs that already have inline styles or are inside custom blocks)
+    // 2. Paragraphs
     output = output.replace(/<p>(?!<table|<div)/gi, `<p style="font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; margin: 0 0 8pt 0;">`);
 
-    // 3. Blockquotes (Normal blockquotes that weren't converted to callouts)
+    // 3. Blockquotes
     output = output.replace(/<blockquote>([\s\S]*?)<\/blockquote>/gi, (match, content) => {
       return `
 <table style="width: 100%; border-collapse: collapse; margin: 12pt 0; border: none; background-color: ${this.theme.bgCard}; border-left: 3.5pt solid ${this.theme.accent};">
@@ -239,13 +302,26 @@ export class GoogleDocsHtmlGenerator {
 </table>`;
     });
 
-    // 4. Code Blocks (<pre><code ...>...</code></pre>)
-    // In Google Docs, wrapping code blocks in a single-cell table preserves background shading and borders 100%!
-    output = output.replace(/<pre><code(?:\s+class="[^"]*")?>([\s\S]*?)<\/code><\/pre>/gi, (match, codeContent) => {
+    // 4. Code Blocks (<pre><code ...>...</code></pre>) with floating language badges
+    output = output.replace(/<pre><code(?:\s+class="([^"]*)")?>([\s\S]*?)<\/code><\/pre>/gi, (match, classAttr, codeContent) => {
+      let lang = '';
+      if (classAttr) {
+        const langMatch = classAttr.match(/language-([a-zA-Z0-9_\-]+)/i);
+        if (langMatch) {
+          lang = langMatch[1].trim();
+        }
+      }
+
+      const showBadges = this.options.codeBlockLanguageBadges !== false;
+      const langBadge = (showBadges && lang)
+        ? `<div style="float: right; font-size: 7.5pt; font-family: ${this.theme.codeFontFamily}; text-transform: uppercase; color: ${this.theme.textMuted}; background-color: ${this.theme.border}; padding: 1.5pt 5pt; border-radius: 3pt; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6pt;">${this.escapeHtml(lang.toUpperCase())}</div>`
+        : '';
+
       return `
 <table style="width: 100%; border-collapse: collapse; margin: 12pt 0; background-color: ${this.theme.codeBg}; border: 1pt solid ${this.theme.codeBorder}; border-radius: 4pt;">
   <tr>
     <td style="padding: 10pt 14pt; vertical-align: top;">
+      ${langBadge}
       <pre style="margin: 0; font-family: ${this.theme.codeFontFamily}; font-size: 9.5pt; line-height: 1.45; color: ${this.theme.codeText}; white-space: pre-wrap; word-wrap: break-word;"><code>${codeContent}</code></pre>
     </td>
   </tr>
@@ -258,7 +334,7 @@ export class GoogleDocsHtmlGenerator {
     });
 
     // 6. Tables - High fidelity GDocs formatting
-    output = this.styleTables(output);
+    output = this.styleTables(output, tableZebraStriping);
 
     // 7. Lists (ul, ol, li)
     output = output.replace(/<ul>/gi, `<ul style="font-family: ${this.theme.fontFamily}; font-size: 10.5pt; line-height: 1.55; color: ${this.theme.text}; margin: 6pt 0 10pt 0; padding-left: 20pt;">`);
@@ -273,12 +349,13 @@ export class GoogleDocsHtmlGenerator {
     // 9. Horizontal Rules (<hr>)
     output = output.replace(/<hr\s*\/?>/gi, `<hr style="border: none; border-top: 1.5pt solid ${this.theme.border}; margin: 20pt 0;" />`);
 
-    // 10. Images: center and style
-    output = output.replace(/<img\s+src="([^"]+)"\s*alt="([^"]*)"(?:\s+title="([^"]*)")?\s*\/?>/gi, (match, src, alt, title) => {
+    // 10. Images: center and style (if not already styled)
+    output = output.replace(/<img\s+src="([^"]+)"\s*alt="([^"]*)"(?:\s+title="([^"]*)")?(?:\s+style="([^"]*)")?\s*\/?>/gi, (match, src, alt, title, style) => {
       const caption = title || alt;
+      const customStyle = style ? style : `max-width: 100%; height: auto; border-radius: 6pt; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border: 1pt solid ${this.theme.border};`;
       return `
 <div style="text-align: center; margin: 16pt 0;">
-  <img src="${src}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 6pt; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border: 1pt solid ${this.theme.border};" />
+  <img src="${src}" alt="${alt}" style="${customStyle}" />
   ${caption ? `<div style="font-size: 9pt; color: ${this.theme.textMuted}; margin-top: 5pt; font-style: italic;">${caption}</div>` : ''}
 </div>`;
     });
@@ -286,15 +363,13 @@ export class GoogleDocsHtmlGenerator {
     return output;
   }
 
-  private styleTables(html: string): string {
-    // Only style markdown data tables, not our custom layout tables
+  private styleTables(html: string, zebraStriping: boolean = true): string {
     const tableRegex = /<table>([\s\S]*?)<\/table>/gi;
 
     return html.replace(tableRegex, (match, innerTable) => {
-      // Apply table container styling
       let styledTable = innerTable;
 
-      // Style Table Header (thead / th)
+      // Style Table Header
       styledTable = styledTable.replace(/<thead>([\s\S]*?)<\/thead>/gi, (theadMatch: string, theadContent: string) => {
         const styledHeaders = theadContent.replace(/<th(\s+style="[^"]*")?>([\s\S]*?)<\/th>/gi, (thMatch: string, existingStyle: string, content: string) => {
           let textAlign = 'left';
@@ -306,15 +381,14 @@ export class GoogleDocsHtmlGenerator {
         return `<thead style="background-color: ${this.theme.tableHeaderBg};">${styledHeaders}</thead>`;
       });
 
-      // Style Table Body (tbody / tr / td)
+      // Style Table Body
       let rowIndex = 0;
       styledTable = styledTable.replace(/<tr>([\s\S]*?)<\/tr>/gi, (trMatch: string, trContent: string) => {
-        // Check if this row contains th (header row)
         if (trContent.includes('<th')) {
           return trMatch;
         }
 
-        const isZebra = this.options.tableZebraStriping !== false && rowIndex % 2 === 1;
+        const isZebra = zebraStriping && rowIndex % 2 === 1;
         const rowBg = isZebra ? this.theme.tableZebraBg : '#FFFFFF';
         rowIndex++;
 
