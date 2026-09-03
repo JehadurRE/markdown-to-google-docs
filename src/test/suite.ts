@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { MarkdownParser } from '../converter/markdownParser';
 import { GoogleDocsHtmlGenerator } from '../converter/googleDocsHtmlGenerator';
 import { DocxGenerator } from '../converter/docxGenerator';
+import { PdfGenerator } from '../converter/pdfGenerator';
 import { ALL_THEMES, getTheme } from '../converter/themes';
 
 export async function runAllTests(): Promise<boolean> {
@@ -403,6 +404,42 @@ def hello():
     assert.ok(!result.clipboardHtml.includes('Table of Contents'), 'TOC should have been suppressed by frontmatter');
     // Verify code block contains language badge
     assert.ok(result.clipboardHtml.includes('PYTHON'), 'Code block language badge missing');
+  });
+
+  // Test 19: PDF Generator
+  await test('PdfGenerator builds valid print-quality PDF with standard PDF header', async () => {
+    const md = `---
+title: "PDF Generation Suite"
+author: "Test Author"
+---
+# Executive Summary
+Testing PDF generation with **bold** text, \`code\`, and tables.
+
+| Metric | Target |
+| :--- | ---: |
+| Accuracy | 100% |
+
+> [!NOTE]
+> PDF test note.
+`;
+    const tempPdf = path.join(__dirname, '../../test-temp.pdf');
+    try {
+      const pdfGen = new PdfGenerator({ theme: 'modern-corporate' });
+      await pdfGen.generatePdf(md, tempPdf);
+
+      assert.ok(fs.existsSync(tempPdf), 'PDF file was not created');
+      const stats = fs.statSync(tempPdf);
+      assert.ok(stats.size > 1000, 'PDF file too small');
+
+      const buffer = fs.readFileSync(tempPdf);
+      // Standard PDF magic header: %PDF- (0x25, 0x50, 0x44, 0x46)
+      const header = buffer.slice(0, 4).toString('ascii');
+      assert.strictEqual(header, '%PDF', 'Invalid PDF magic header');
+    } finally {
+      try {
+        if (fs.existsSync(tempPdf)) fs.unlinkSync(tempPdf);
+      } catch (_) {}
+    }
   });
 
   console.log(`\n========================================`);

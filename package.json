@@ -2,7 +2,7 @@
   "name": "markdown-to-google-docs",
   "displayName": "Markdown to Google Docs - Modern & Professional",
   "description": "Convert any Markdown file to a beautifully styled, professional Google Doc with 1-click cloud sync, rich clipboard copy, live preview, and modern themes.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "JehadurRE",
   "icon": "media/icon.png",
   "galleryBanner": {
@@ -69,6 +69,12 @@
         "title": "Export as Google Docs-ready DOCX",
         "category": "Markdown to Google Docs",
         "icon": "$(file-binary)"
+      },
+      {
+        "command": "md2gdocs.exportPdf",
+        "title": "Export as PDF (Print Quality)",
+        "category": "Markdown to Google Docs",
+        "icon": "$(file-pdf)"
       },
       {
         "command": "md2gdocs.selectTheme",
@@ -144,6 +150,11 @@
           "command": "md2gdocs.exportHtml",
           "when": "resourceExtname == .md",
           "group": "md2gdocs"
+        },
+        {
+          "command": "md2gdocs.exportPdf",
+          "when": "resourceExtname == .md",
+          "group": "md2gdocs"
         }
       ],
       "submenus": [
@@ -153,6 +164,10 @@
         }
       ],
       "md2gdocs.exportSubmenu": [
+        {
+          "command": "md2gdocs.exportPdf",
+          "group": "1_export"
+        },
         {
           "command": "md2gdocs.exportHtml",
           "group": "1_export"

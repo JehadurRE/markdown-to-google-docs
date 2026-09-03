@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { GoogleDocsHtmlGenerator } from './converter/googleDocsHtmlGenerator';
 import { DocxGenerator } from './converter/docxGenerator';
+import { PdfGenerator } from './converter/pdfGenerator';
 import { ClipboardHelper } from './clipboard/clipboardHelper';
 import { GoogleAuthService } from './google/googleAuth';
 import { GoogleDriveClient } from './google/googleDriveClient';
@@ -234,6 +235,57 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  // 6. Command: Export as PDF
+  const exportPdfCommand = vscode.commands.registerCommand(
+    'md2gdocs.exportPdf',
+    async (uri?: vscode.Uri) => {
+      const document = await getTargetDocument(uri);
+      if (!document) return;
+
+      try {
+        const config = vscode.workspace.getConfiguration('md2gdocs');
+        const theme = config.get<string>('defaultTheme', 'modern-corporate');
+        const baseDir = path.dirname(document.uri.fsPath);
+
+        const defaultName = path.basename(document.uri.fsPath, path.extname(document.uri.fsPath)) + '.pdf';
+        const defaultUri = vscode.Uri.file(path.join(baseDir, defaultName));
+
+        const targetUri = await vscode.window.showSaveDialog({
+          defaultUri,
+          filters: { 'PDF Document': ['pdf'] },
+          saveLabel: 'Export PDF'
+        });
+
+        if (!targetUri) return;
+
+        await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: `Exporting "${path.basename(targetUri.fsPath)}" to PDF...`,
+            cancellable: false
+          },
+          async () => {
+            const pdfGen = new PdfGenerator({ theme, baseDir });
+            await pdfGen.generatePdf(document.getText(), targetUri.fsPath);
+
+            const choice = await vscode.window.showInformationMessage(
+              `🎉 Saved PDF: ${path.basename(targetUri.fsPath)}`,
+              'Open File',
+              'Reveal in File Explorer'
+            );
+            if (choice === 'Open File') {
+              vscode.env.openExternal(targetUri);
+            } else if (choice === 'Reveal in File Explorer') {
+              vscode.commands.executeCommand('revealFileInOS', targetUri);
+            }
+          }
+        );
+      } catch (err: any) {
+        vscode.window.showErrorMessage(`Export PDF failed: ${err.message}`);
+      }
+    }
+  );
+
   // 6. Command: Select Theme
   const selectThemeCommand = vscode.commands.registerCommand(
     'md2gdocs.selectTheme',
@@ -291,6 +343,7 @@ export function activate(context: vscode.ExtensionContext) {
     previewCommand,
     exportHtmlCommand,
     exportDocxCommand,
+    exportPdfCommand,
     selectThemeCommand,
     authCommand,
     logoutCommand

@@ -68,6 +68,9 @@ export class GoogleDocsPreviewPanel {
           case 'exportDocx':
             vscode.commands.executeCommand('md2gdocs.exportDocx');
             break;
+          case 'exportPdf':
+            vscode.commands.executeCommand('md2gdocs.exportPdf');
+            break;
         }
       },
       null,
@@ -238,6 +241,7 @@ export class GoogleDocsPreviewPanel {
     <div class="toolbar-actions">
       <button class="btn" onclick="copyForGDocs()">📋 Copy for Google Docs</button>
       <button class="btn btn-secondary" onclick="uploadDrive()">☁️ Upload to Drive</button>
+      <button class="btn btn-secondary" onclick="exportPdf()">📄 Export PDF</button>
       <button class="btn btn-secondary" onclick="exportHtml()">Export HTML</button>
       <button class="btn btn-secondary" onclick="exportDocx()">Export DOCX</button>
     </div>
@@ -263,6 +267,10 @@ export class GoogleDocsPreviewPanel {
 
     function uploadDrive() {
       vscode.postMessage({ command: 'upload' });
+    }
+
+    function exportPdf() {
+      vscode.postMessage({ command: 'exportPdf' });
     }
 
     function exportHtml() {
