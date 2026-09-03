@@ -31,7 +31,7 @@ export class DocxGenerator {
 
   public async generateDocx(markdownContent: string): Promise<Buffer> {
     const parser = new MarkdownParser(this.options);
-    const { frontmatter, bodyMarkdown, wordCount, readingTimeMinutes } = parser.parse(markdownContent);
+    const { frontmatter, rawMarkdown, wordCount, readingTimeMinutes } = parser.parse(markdownContent);
     (frontmatter as any).wordCount = wordCount;
     (frontmatter as any).readingTimeMinutes = readingTimeMinutes;
 
@@ -41,7 +41,7 @@ export class DocxGenerator {
     this.buildHeader(frontmatter, docChildren);
 
     // 2. Parse body markdown lines into docx elements
-    this.buildBody(bodyMarkdown, docChildren);
+    this.buildBody(rawMarkdown, docChildren);
 
     // Clean hex colors (remove leading #)
     const primaryHex = this.theme.primary.replace('#', '');
@@ -243,12 +243,26 @@ export class DocxGenerator {
     let codeBlockLines: string[] = [];
     let inTable = false;
     let tableRows: string[] = [];
+    const footnotesDefs: Array<{ id: string; text: string }> = [];
+
+    const primaryHex = this.theme.primary.replace('#', '');
+    const mutedHex = this.theme.textMuted.replace('#', '');
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Code blocks
-      if (line.trim().startsWith('```')) {
+      // Code blocks (including Mermaid)
+      if (line.trim().startsWith('```mermaid')) {
+        const diagramLines: string[] = [];
+        let j = i + 1;
+        while (j < lines.length && !lines[j].trim().startsWith('```')) {
+          diagramLines.push(lines[j]);
+          j++;
+        }
+        i = j;
+        this.addDiagramCard(diagramLines.join('\n'), children);
+        continue;
+      } else if (line.trim().startsWith('```')) {
         if (inCodeBlock) {
           // Finish code block
           this.addCodeBlock(codeBlockLines.join('\n'), children);
@@ -263,6 +277,13 @@ export class DocxGenerator {
 
       if (inCodeBlock) {
         codeBlockLines.push(line);
+        continue;
+      }
+
+      // Footnote definitions: [^1]: Description
+      const fnMatch = line.trim().match(/^\[\^([^\]]+)\]:\s*([\s\S]*)$/);
+      if (fnMatch) {
+        footnotesDefs.push({ id: fnMatch[1], text: fnMatch[2] });
         continue;
       }
 
@@ -346,20 +367,70 @@ export class DocxGenerator {
               new TextRun({
                 text: line.replace(/^>\s*/, ''),
                 italics: true,
-                color: this.theme.textMuted.replace('#', '')
+                color: mutedHex
               })
             ],
             spacing: { before: 120, after: 120 }
           })
         );
       } else if (/^[ \t]*(\[TOC\]|\[\[toc\]\]|\[toc\])[ \t]*$/i.test(line)) {
-        // Skip manual TOC tag in DOCX (or ignore)
+        // Skip manual TOC tag in DOCX
         continue;
       } else if (line.includes('gdoc-pagebreak') || /^[ \t]*(?:<!--[ \t]*(?:pagebreak|newpage|pb)[ \t]*-->|\\pagebreak|===)[ \t]*$/i.test(line)) {
-        // Page break
+        // Hard Page break
         children.push(
           new Paragraph({
             children: [new PageBreak()]
+          })
+        );
+        continue;
+      } else if (/^(\*{3,}|-{3,}|_{3,})$/.test(line.trim())) {
+        // Horizontal Rule
+        children.push(
+          new Paragraph({
+            border: {
+              bottom: {
+                color: this.theme.border.replace('#', ''),
+                space: 1,
+                style: BorderStyle.SINGLE,
+                size: 6
+              }
+            },
+            spacing: { before: 180, after: 180 }
+          })
+        );
+        continue;
+      } else if (line.trim().startsWith('$$')) {
+        // Math Block
+        let mathText = line.trim().slice(2);
+        if (mathText.endsWith('$$')) {
+          mathText = mathText.slice(0, -2).trim();
+        } else {
+          const mathLines = [mathText];
+          let j = i + 1;
+          while (j < lines.length && !lines[j].trim().endsWith('$$')) {
+            mathLines.push(lines[j]);
+            j++;
+          }
+          if (j < lines.length) {
+            mathLines.push(lines[j].trim().replace(/\$\$$/, ''));
+            i = j;
+          }
+          mathText = mathLines.join(' ').trim();
+        }
+        children.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: mathText,
+                font: 'Cambria Math',
+                italics: true,
+                size: 24,
+                color: primaryHex
+              })
+            ],
+            spacing: { before: 180, after: 180 }
           })
         );
         continue;
@@ -385,8 +456,24 @@ export class DocxGenerator {
           })
         );
         continue;
-      } else if (line.trim().startsWith(': ') && i > 0 && lines[i - 1].trim().length > 0) {
-        // Definition list description
+      } else if (i + 1 < lines.length && lines[i + 1].trim().startsWith(': ') && !line.trim().startsWith(': ') && line.trim().length > 0) {
+        // Definition List Term
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: line.trim(),
+                bold: true,
+                size: 22,
+                color: primaryHex
+              })
+            ],
+            spacing: { before: 140, after: 30 }
+          })
+        );
+        continue;
+      } else if (line.trim().startsWith(': ')) {
+        // Definition List Description
         const defText = line.trim().slice(2).trim();
         children.push(
           new Paragraph({
@@ -416,7 +503,7 @@ export class DocxGenerator {
           new Paragraph({
             children: [
               new TextRun({ text: '☑  ', bold: true, size: 22 }),
-              new TextRun({ text: text, strike: true, color: this.theme.textMuted.replace('#', '') })
+              new TextRun({ text: text, strike: true, color: mutedHex })
             ],
             spacing: { after: 100 }
           })
@@ -429,6 +516,48 @@ export class DocxGenerator {
 
     if (inTable && tableRows.length > 0) {
       this.addTable(tableRows, children);
+    }
+
+    // Append Footnotes Section if any were defined
+    if (footnotesDefs.length > 0) {
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Footnotes',
+              bold: true,
+              size: 22,
+              color: primaryHex
+            })
+          ],
+          spacing: { before: 360, after: 120 },
+          border: {
+            top: {
+              color: this.theme.border.replace('#', ''),
+              space: 1,
+              style: BorderStyle.SINGLE,
+              size: 6
+            }
+          }
+        })
+      );
+
+      for (const fn of footnotesDefs) {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `[${fn.id}] `,
+                bold: true,
+                size: 18,
+                color: this.theme.secondary.replace('#', '')
+              }),
+              ...this.parseFormattedRuns(fn.text)
+            ],
+            spacing: { after: 60 }
+          })
+        );
+      }
     }
   }
 
@@ -443,7 +572,7 @@ export class DocxGenerator {
   private parseFormattedRuns(text: string): TextRun[] {
     const runs: TextRun[] = [];
     // Tokenize: bold, italic, code, highlight (==text==), sub (~text~), sup (^text^), strike (~~text~~), insert (++text++), kbd (<kbd>text</kbd>), math ($text$)
-    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|==.*?==|~~.*?~~|\+\+.*?\+\+|\~.*?\~|\^.*?\^|<kbd>.*?<\/kbd>|\$[^\$\n]+?\$)/g;
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|==.*?==|~~.*?~~|\+\+.*?\+\+|\~.*?\~|\^.*?\^|<kbd>.*?<\/kbd>|\$[^\$\n]+?\$|\[\^[^\]]+\])/g;
     const parts = text.split(regex);
 
     for (const part of parts) {
@@ -483,12 +612,73 @@ export class DocxGenerator {
       } else if (part.startsWith('$') && part.endsWith('$')) {
         // Inline math
         runs.push(new TextRun({ text: part.slice(1, -1), italics: true, font: 'Cambria Math' }));
+      } else if (part.startsWith('[^') && part.endsWith(']')) {
+        // Inline Footnote citation
+        runs.push(
+          new TextRun({
+            text: `[${part.slice(2, -1)}]`,
+            superScript: true,
+            bold: true,
+            color: this.theme.secondary.replace('#', '')
+          })
+        );
       } else {
         runs.push(new TextRun({ text: part }));
       }
     }
 
     return runs;
+  }
+
+  private addDiagramCard(code: string, children: (Paragraph | Table)[]): void {
+    const lines = code.trim().split('\n').filter(l => l.trim().length > 0);
+    const diagramType = lines[0] ? lines[0].trim().toUpperCase() : 'FLOWCHART';
+
+    const cell = new TableCell({
+      width: { size: 9000, type: WidthType.DXA },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 8, color: this.theme.borderDark.replace('#', '') },
+        bottom: { style: BorderStyle.SINGLE, size: 8, color: this.theme.borderDark.replace('#', '') },
+        left: { style: BorderStyle.SINGLE, size: 8, color: this.theme.secondary.replace('#', '') },
+        right: { style: BorderStyle.SINGLE, size: 8, color: this.theme.borderDark.replace('#', '') }
+      },
+      shading: {
+        fill: 'F8FAFC',
+        type: ShadingType.CLEAR
+      },
+      children: [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `📊 DIAGRAM: ${diagramType}`,
+              bold: true,
+              size: 18,
+              color: this.theme.primary.replace('#', '')
+            })
+          ],
+          spacing: { after: 100 }
+        }),
+        ...lines.map(l => new Paragraph({
+          children: [
+            new TextRun({
+              text: l,
+              font: 'Consolas',
+              size: 18,
+              color: this.theme.text.replace('#', '')
+            })
+          ],
+          spacing: { after: 40 }
+        }))
+      ],
+      margins: { top: 160, bottom: 160, left: 240, right: 240 }
+    });
+
+    children.push(
+      new Table({
+        rows: [new TableRow({ children: [cell] })],
+        width: { size: 9000, type: WidthType.DXA }
+      })
+    );
   }
 
   private addCodeBlock(code: string, children: (Paragraph | Table)[]): void {

@@ -180,6 +180,7 @@ export class MarkdownParser {
 
   public parse(markdownInput: string): {
     frontmatter: FrontmatterData;
+    rawMarkdown: string;
     bodyMarkdown: string;
     parsedHtml: string;
     toc: TocItem[];
@@ -203,6 +204,8 @@ export class MarkdownParser {
       content = markdownInput;
     }
 
+    const rawMarkdown = content;
+
     // 2. Preprocess custom Markdown syntax
     content = this.preprocessMarkdown(content);
 
@@ -217,6 +220,7 @@ export class MarkdownParser {
 
     return {
       frontmatter,
+      rawMarkdown,
       bodyMarkdown: content,
       parsedHtml: html,
       toc: this.toc,
