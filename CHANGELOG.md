@@ -4,6 +4,27 @@ All notable changes to the **Markdown to Google Docs** (`md2gdocs`) extension wi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-09-04
+
+### Added
+- **Interactive DOCX Viewer Controls**: Added responsive Zoom In (`+`), Zoom Out (`−`), and Reset (`100%`) with keyboard shortcuts (`Ctrl + +`, `Ctrl + -`, `Ctrl + 0`).
+- **Dark / Light Theme Toggle in Word Viewer**: Eye-strain reduction mode (`🌓 Theme`) with persistent local preference caching.
+- **Document Telemetry Badges in Word Viewer**: Live pill indicators for file size (`KB`) and real-time word count.
+- **Embedded Image Support in Word Viewer**: Integrated `mammoth.images.dataUri` so screenshots, logos, diagrams, and photos inside `.docx` files render automatically as standard Data URIs.
+- **Clickable Hyperlinks in DOCX**: Integrated native Word `ExternalHyperlink` components for Markdown links (`[label](url)`) and native `HeadingLevel.TITLE` outline formatting.
+- **Dual-Format System Clipboard**: Windows clipboard simultaneously registers `DataFormats.Html` (for Google Docs, Word, Outlook) and `DataFormats.UnicodeText` (for VS Code, Notepad, terminal).
+- **Universal UTF-8 Encoding**: Prepended `<meta charset="utf-8">` to clipboard fragments, guaranteeing emoji, arrows, checkboxes, and math symbols decode without ANSI corruption.
+
+### Fixed
+- **Table-Based `thead` / `tfoot` Repeating PDF Architecture**: Replaced fragile `position: fixed` CSS coordinates with paged table headers and footers. Chromium's layout engine mathematically reserves dedicated header and footer margins on every page, completely eliminating text collisions.
+- **Card & Table Page Splitting**: Added `page-break-inside: avoid !important; break-inside: avoid !important;` to Table of Contents, Callouts, Diagram cards, Math blocks, and Data tables to prevent boxes from being sliced across page boundaries.
+- **Orphan Headings in PDF**: Added `page-break-after: avoid !important; break-after: avoid !important;` to headings (`h1`–`h6`).
+- **Eliminated Raw HTML Leaks in Word Export**: `MarkdownParser` dual-pipeline separates pure `rawMarkdown` from HTML-preprocessed `bodyMarkdown`, preventing internal tags (`[[CALLOUT:...]]`, `<table...>`, `<dl><dt>`) from appearing as visible text in `.docx`.
+- **Windows `CF_HTML` Byte Offset Drift**: Corrected placeholder width calculation so `StartHTML`, `EndHTML`, `StartFragment`, and `EndFragment` are verified 100% byte-perfect (0 byte offset error).
+- **Word Viewer Element Styles**: Added dedicated styling for `<pre>`, `<code>`, single-cell callout tables (`table:has(tr:only-child > td:only-child)`), blockquotes, and tables.
+
+---
+
 ## [1.1.0] - 2026-09-03
 
 ### Added
